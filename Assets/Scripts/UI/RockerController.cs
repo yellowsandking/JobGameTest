@@ -7,9 +7,6 @@ using UnityEngine.EventSystems;
 
 public class RockerController : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler
 {
-
-
-
     public void OnDrag(PointerEventData eventData)
     {
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
@@ -23,7 +20,6 @@ public class RockerController : MonoBehaviour, IPointerDownHandler, IPointerUpHa
             outPos = outPos.normalized * R;
             Debug.Log("outPos: " + outPos);
         }
-
         yaoGanLight.transform.up = outPos.normalized;
         yaoGanPos.localPosition = outPos;
     }
@@ -33,7 +29,6 @@ public class RockerController : MonoBehaviour, IPointerDownHandler, IPointerUpHa
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
             transform as RectTransform, eventData.pressPosition, eventData.enterEventCamera, out outPos
             );
-
         yaoGanBGPos.localPosition = outPos;
         outPos = Vector2.zero;
     }
@@ -45,7 +40,6 @@ public class RockerController : MonoBehaviour, IPointerDownHandler, IPointerUpHa
     bool isSetactive;
     public void OnDisable()
     {
-
         outPos = Vector2.zero;
         yaoGanPos.localPosition = outPos;
     }
