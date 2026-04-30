@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: GamePrefab
+  m_EditorClassIdentifier: 
+  m_GroupName: GamePrefab
+  m_Data:
+    m_SerializedData: []
+  m_GUID: 9c8f4808a96806e4c8ad31c25c780d74
+  m_SerializeEntries:
+  - m_GUID: cc98c7e39adf2934baf27ff01e0b2676
+    m_Address: GamePrefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4f6df3be63dacf047a7f29edfbe123a4
+    m_Address: Enemy
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8c23d73b623198341946b728654c44ea
+    m_Address: GameCamera
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 74b7407ed55f05c41a26b2b6d1edc861
+    m_Address: Player
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 062d7f0cea978af44bbebdbe8f3b868d, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 2e3e8a57b41afcb43ba3968b717dcf35, type: 2}
+    - {fileID: 11400000, guid: ddfcf3c8b3446cc42a86af7afd5a03ce, type: 2}

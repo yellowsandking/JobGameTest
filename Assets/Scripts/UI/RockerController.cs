@@ -22,6 +22,7 @@ public class RockerController : MonoBehaviour, IPointerDownHandler, IPointerUpHa
         }
         yaoGanLight.transform.up = outPos.normalized;
         yaoGanPos.localPosition = outPos;
+        InputMgr.Instance.MoveDir(outPos.normalized);
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -57,6 +58,7 @@ public class RockerController : MonoBehaviour, IPointerDownHandler, IPointerUpHa
             yaoGanBGPos.anchoredPosition = new Vector2(547, 244);
         }
         yaoGanLight.localRotation = Quaternion.identity;
+        InputMgr.Instance.MoveDir(outPos.normalized);
     }
     private RectTransform yaoGanPos;
     private RectTransform yaoGanBGPos;

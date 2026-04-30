@@ -13,5 +13,25 @@ MonoBehaviour:
   m_Name: AddressableImportSettings
   m_EditorClassIdentifier: 
   rulesEnabled: 1
-  allowGroupCreation: 0
-  rules: []
+  allowGroupCreation: 1
+  rules:
+  - path: Assets/ArtResource/GamePrefab
+    matchType: 0
+    groupName: GamePrefab
+    groupTemplate: {fileID: 11400000, guid: 1d70b4c63280c324790a5ae3c9d49e6d, type: 2}
+    groupTemplateApplicationMode: 1
+    labelRefs: []
+    dynamicLabels: []
+    LabelMode: 0
+    simplified: 1
+    addressReplacement: 
+  - path: Assets/ArtResource/Other
+    matchType: 0
+    groupName: Other
+    groupTemplate: {fileID: 11400000, guid: 1d70b4c63280c324790a5ae3c9d49e6d, type: 2}
+    groupTemplateApplicationMode: 1
+    labelRefs: []
+    dynamicLabels: []
+    LabelMode: 0
+    simplified: 1
+    addressReplacement: 
