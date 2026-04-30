@@ -97,7 +97,7 @@ public class CameraMgr : GameLogicMgr<CameraMgr>
         }
 
         m_CameraTarget.position = BattleMgr.Instance.mainPlayer.m_SelfTF.position;
-        CameraRotate();
+        //CameraRotate();
     }
 
     public float m_RotateSpeed = 90;

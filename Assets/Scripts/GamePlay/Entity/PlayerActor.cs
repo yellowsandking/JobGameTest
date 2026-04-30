@@ -27,6 +27,7 @@ public class PlayerActor : ActorBase
         Vector3 velocity = new Vector3(moveDir.x, 0, moveDir.y);
         m_Pos += velocity * m_MoveSpeed * Time.deltaTime;
         m_SelfTF.position = m_Pos;
+        m_SelfTF.rotation = Quaternion.LookRotation(velocity);
 
         m_Run = 1;
         m_Animator.SetInteger("Speed", m_Run);

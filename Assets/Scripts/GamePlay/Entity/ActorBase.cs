@@ -15,6 +15,7 @@ public class ActorBase
         m_Pos = pos;
         m_SelfObj = obj;
         m_SelfTF = m_SelfObj.Object.transform;
+        m_SelfTF.position = m_Pos;
         OnInit();
     }
 

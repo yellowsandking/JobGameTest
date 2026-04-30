@@ -7,7 +7,7 @@ public class AI : IAI
     public IAIBehavior[] m_Behaviors = new IAIBehavior[(int)AIBehavoirType.eMax];
     AIBehavoirType m_CurrentBehaviorType = AIBehavoirType.eIdle;
     float m_fAISwitchTime = 0.0f;
-    float m_RotateSpeed = 20;
+    float m_RotateSpeed = 200;
     float m_MoveSpeed = 5;
     ActorBase m_Actor = null;
     Transform m_SelfTF = null;
@@ -58,9 +58,8 @@ public class AI : IAI
     {
         PlayerActor player = BattleMgr.Instance.mainPlayer;
         Vector3 dir = player.m_SelfTF.position - m_SelfTF.position;
-        dir.y = 0;
         Quaternion targetLook = Quaternion.LookRotation(dir);
-        Quaternion qua = Quaternion.RotateTowards(player.m_SelfTF.rotation, targetLook, m_RotateSpeed * Time.deltaTime);
+        Quaternion qua = Quaternion.RotateTowards(m_SelfTF.rotation, targetLook, m_RotateSpeed * Time.deltaTime);
         m_SelfTF.rotation = qua;
 
         // 移动
