@@ -3,21 +3,21 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // 开火
-public class AI_Attack : IAIBehavior
+public class AI_AttackForPlayer : IAIBehavior
 {
-    private AI m_AI;
+    private AIForPlayer m_AI;
 
     private float m_AddTime = 0;
     private const float INTERVAL_TIME = 0.04f;
 
-    public AI_Attack(AI ai)
+    public AI_AttackForPlayer(AIForPlayer ai)
     {
         this.m_AI = ai;
     }
 
-    public AIBehavoirType aiType
+    public int aiType
     {
-        get { return AIBehavoirType.eAttack; }
+        get { return (int)AIPlayerBehavoirType.eAttack; }
     }
 
     public bool Update(float deltTime)

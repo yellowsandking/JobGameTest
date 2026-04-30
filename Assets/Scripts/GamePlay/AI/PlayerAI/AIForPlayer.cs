@@ -2,17 +2,17 @@
 using System.Linq.Expressions;
 using UnityEngine;
 
-public class AI : IAI
+public class AIForPlayer : IAI
 {
-    public IAIBehavior[] m_Behaviors = new IAIBehavior[(int)AIBehavoirType.eMax];
-    AIBehavoirType m_CurrentBehaviorType = AIBehavoirType.eIdle;
+    public IAIBehavior[] m_Behaviors = new IAIBehavior[(int)AIPlayerBehavoirType.eMax];
+    AIPlayerBehavoirType m_CurrentBehaviorType = AIPlayerBehavoirType.eAttack;
     float m_fAISwitchTime = 0.0f;
     float m_RotateSpeed = 200;
     float m_MoveSpeed = 5;
     ActorBase m_Actor = null;
     Transform m_SelfTF = null;
 
-    public AIBehavoirType currentBehaviorType
+    public AIPlayerBehavoirType currentBehaviorType
     {
         get { return m_CurrentBehaviorType; }
     }
@@ -28,9 +28,7 @@ public class AI : IAI
         //m_SelfTransform = obj.transform;
         m_SelfTF = actor.m_SelfTF;
 
-        m_Behaviors[0] = new AI_Attack(this);
-        m_Behaviors[1] = new AI_Find_Player(this);
-        m_Behaviors[2] = new AI_Idle(this);
+        m_Behaviors[0] = new AI_AttackForPlayer(this);
     }
 
     public void LogicUpdate()
@@ -47,7 +45,7 @@ public class AI : IAI
             bool resullt = behavior.Update(deltaTime);
             if (resullt == true)
             {
-                ChangeState(behavior.aiType);
+                ChangeState((AIPlayerBehavoirType)behavior.aiType);
                 //Debug.LogError("AI type: " + behavior.aiType.ToString());
                 break;
             }
@@ -96,7 +94,7 @@ public class AI : IAI
         return true;
     }
 
-    private void ChangeState(AIBehavoirType eState, float fKeepTime = 0f)
+    private void ChangeState(AIPlayerBehavoirType eState, float fKeepTime = 0f)
     {
         m_CurrentBehaviorType = eState;
         //m_fStateKeepTime = Time.realtimeSinceStartup + fKeepTime;

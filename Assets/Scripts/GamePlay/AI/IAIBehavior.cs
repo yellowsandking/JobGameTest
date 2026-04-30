@@ -6,7 +6,13 @@ public enum AIBehavoirType
     eIdle = 0,
     eFindPlayer = 1,
     eAttack = 2,
-    eMax = 3,
+    eMax,
+}
+
+public enum AIPlayerBehavoirType
+{
+    eAttack = 0,
+    eMax,
 }
 
 public interface IAI
@@ -19,7 +25,7 @@ public interface IAI
 public interface IAIBehavior
 {
     bool Update(float deltTime);
-    AIBehavoirType aiType
+    int aiType
     {
         get;
     }

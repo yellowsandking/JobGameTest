@@ -20,9 +20,9 @@ public class AI_Find_Player : IAIBehavior
         bFirstEnter = true;
     }
 
-    public AIBehavoirType aiType
+    public int aiType
     {
-        get { return AIBehavoirType.eFindPlayer; }
+        get { return (int)AIBehavoirType.eFindPlayer; }
     }
 
     public bool Update(float deltTime)

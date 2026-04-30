@@ -15,9 +15,9 @@ public class AI_Idle : IAIBehavior
         this.m_AI = ai;
     }
 
-    public AIBehavoirType aiType
+    public int aiType
     {
-        get { return AIBehavoirType.eAttack; }
+        get { return (int)AIBehavoirType.eIdle; }
     }
 
     public bool Update(float deltTime)
