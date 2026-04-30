@@ -85,7 +85,6 @@ public class CameraMgr : GameLogicMgr<CameraMgr>
         m_FollowOffsetDefaultY = m_VCBody.m_FollowOffset.y;
 
         //m_CameraTarget.transform.position = m_CameraMainPos;
-        ResetCameraOffset(CameraProperty.Instance.m_CameraDefaultOffsetY);
         m_DefaultFov = m_VirtualCamera.m_Lens.FieldOfView;
         //m_CameraTarget.eulerAngles = new Vector3(0, m_eulerAnglesY, 0);
     }
@@ -96,152 +95,9 @@ public class CameraMgr : GameLogicMgr<CameraMgr>
         {
             return;
         }
-        CameraMove();
-        CameraUpDown();
+
+        m_CameraTarget.position = BattleMgr.Instance.mainPlayer.m_SelfTF.position;
         CameraRotate();
-    }
-
-    Vector3 m_DragStartPos = Vector3.zero;
-    void CameraMove()
-    {
-        Vector3 inputDir = Vector3.zero;
-        if (Input.GetMouseButtonDown(2))
-        {
-            m_LastMousePos = Input.mousePosition;
-            m_LastMousePos.y *= 1.3f;
-            m_DragStartPos = m_CameraTarget.position;
-            return;
-        }
-        else if (Input.GetMouseButton(2))
-        {
-            DragScreen();
-            return;
-        }
-        else if (Input.GetMouseButtonUp(2))
-        {
-            m_LastMousePos = Vector3.zero;
-            return;
-        }
-        else
-        {
-            if (Input.GetKey(KeyCode.W))
-                inputDir.z = 1f;
-
-            if (Input.GetKey(KeyCode.S))
-                inputDir.z = -1f;
-
-            if (Input.GetKey(KeyCode.D))
-                inputDir.x = 1f;
-
-            if (Input.GetKey(KeyCode.A))
-                inputDir.x = -1f;
-        }
-
-        if (m_useEdgeScrolling)
-        {
-            if (Input.mousePosition.x > Screen.width || Input.mousePosition.x < 0 || Input.mousePosition.y > Screen.height || Input.mousePosition.y < 0)
-                return;
-
-            int edgeScrollSize = 30;
-            if (Input.mousePosition.x < edgeScrollSize)
-            {
-                inputDir.x = -1f;
-            }
-            if (Input.mousePosition.y < edgeScrollSize)
-            {
-                inputDir.z = -1f;
-            }
-            if (Input.mousePosition.x > Screen.width - edgeScrollSize)
-            {
-                inputDir.x = 1f;
-            }
-            if (Input.mousePosition.y > Screen.height - edgeScrollSize)
-            {
-                inputDir.z = 1f;
-            }
-        }
-
-        if (inputDir == Vector3.zero)
-            return;
-
-        var move = (m_CameraTarget.forward * inputDir.z + m_CameraTarget.right * inputDir.x) * m_MoveSpeed * Time.deltaTime;
-        m_MovePos.x = Mathf.Clamp(m_CameraTarget.position.x + move.x, m_MoveBound.x, m_MoveBound.y);
-        m_MovePos.y = m_CameraTarget.position.y;
-        m_MovePos.z = Mathf.Clamp(m_CameraTarget.position.z + move.z, m_MoveBound.z, m_MoveBound.w);
-        // Debug.LogWarning($"m_CinemachineVirtualCamera 1 position {m_CinemachineVirtualCamera.transform.position}");
-        m_CameraTarget.position = m_MovePos;
-        m_VirtualCamera.InternalUpdateCameraState(Vector3.up, Time.deltaTime);
-        // Debug.LogWarning($"m_CinemachineVirtualCamera 2 position {m_CinemachineVirtualCamera.transform.position}");
-    }
-
-    void DragScreen()
-    {
-        var screenPos = m_Main_Camera.WorldToScreenPoint(m_DragStartPos);
-        m_LastMousePos.z = screenPos.z;
-        var currPoint = Input.mousePosition;
-        currPoint.y *= 1.3f;
-        currPoint.z = screenPos.z;
-        var lastWorldPos = m_Main_Camera.ScreenToWorldPoint(m_LastMousePos);
-        var currWorldPos = m_Main_Camera.ScreenToWorldPoint(currPoint);
-        var move = lastWorldPos - currWorldPos;
-
-        m_MovePos.x = Mathf.Clamp(m_DragStartPos.x + move.x, m_MoveBound.x, m_MoveBound.y);
-        m_MovePos.y = m_DragStartPos.y;
-        m_MovePos.z = Mathf.Clamp(m_DragStartPos.z + move.z, m_MoveBound.z, m_MoveBound.w);
-
-        m_CameraTarget.position = m_MovePos;
-    }
-
-
-    void CameraUpDown()
-    {
-        //获取虚拟按键(鼠标中轴滚轮)
-        float mouseCenter = Input.GetAxis("Mouse ScrollWheel");
-
-        //鼠标滑动中键滚轮,实现摄像机的镜头放大和缩放
-        //mouseCenter < 0 = 负数 往后滑动,缩放镜头
-        if (mouseCenter < 0)
-        {
-            //滑动限制
-            if (m_VCBody.m_FollowOffset.y < m_MaxFollowOffsetY)
-            {
-                var dir = m_Main_Camera.transform.forward * -1;
-                if (m_UpDownPreCameraPos != Vector3.zero)
-                {
-                    dir = (m_VirtualCamera.transform.position - m_UpDownPreCameraPos).normalized;
-                    dir = (dir.x > 0 && m_Main_Camera.transform.forward.x > 0) || (dir.y > 0 && m_Main_Camera.transform.forward.y > 0) || (dir.z > 0 && m_Main_Camera.transform.forward.z > 0) ? dir * -1 : dir;
-                }
-                var dt = 1 + (m_FovSpeed * Time.deltaTime);
-                followOffsetResult.y = Mathf.Min(m_VCBody.m_FollowOffset.y * dt, m_MaxFollowOffsetY);
-                followOffsetResult.z = followOffsetResult.y * m_FollowOffsetRate;
-                followOffsetResult.x = m_VCBody.m_FollowOffset.x;
-                m_VCBody.m_FollowOffset = followOffsetResult;
-                m_UpDownPreCameraPos = m_VirtualCamera.transform.position;
-                m_VirtualCamera.InternalUpdateCameraState(Vector3.up, Time.deltaTime);
-            }
-            //mouseCenter >0 = 正数 往前滑动,放大镜头
-        }
-        else if (mouseCenter > 0)
-        {
-            if (m_Main_Camera.transform.position == m_UpDownPreCameraPos) return;
-            //滑动限制
-            if (m_VCBody.m_FollowOffset.y > m_MinFollowOffsetY)
-            {
-                var dir = m_Main_Camera.transform.forward;
-                if (m_UpDownPreCameraPos != Vector3.zero)
-                {
-                    dir = (m_VirtualCamera.transform.position - m_UpDownPreCameraPos).normalized;
-                    dir = (dir.x > 0 && m_Main_Camera.transform.forward.x < 0) || (dir.y > 0 && m_Main_Camera.transform.forward.y < 0) || (dir.z > 0 && m_Main_Camera.transform.forward.z < 0) ? dir * -1 : dir;
-                }
-                var dt = 1 + (m_FovSpeed * Time.deltaTime);
-                followOffsetResult.y = Mathf.Max(m_VCBody.m_FollowOffset.y / dt, m_MinFollowOffsetY);
-                followOffsetResult.z = followOffsetResult.y * m_FollowOffsetRate;
-                followOffsetResult.x = m_VCBody.m_FollowOffset.x;
-                m_VCBody.m_FollowOffset = followOffsetResult;
-                m_UpDownPreCameraPos = m_VirtualCamera.transform.position;
-                m_VirtualCamera.InternalUpdateCameraState(Vector3.up, Time.deltaTime);
-            }
-        }
     }
 
     public float m_RotateSpeed = 90;
@@ -263,11 +119,7 @@ public class CameraMgr : GameLogicMgr<CameraMgr>
             return;
         }
         float mouseX = Input.GetAxis("Mouse X") * m_RotateSpeed * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * m_RotateSpeed * Time.deltaTime;
-
-        xRotation -= mouseY;
-        xRotation = Mathf.Clamp(xRotation, m_UpDownAngle.x, m_UpDownAngle.y);
-        GameHelper.SetLocalEulerAngles(m_CameraTarget, xRotation, m_CameraTarget.localEulerAngles.y + mouseX, m_CameraTarget.localEulerAngles.z);
+        GameHelper.SetLocalEulerAngles(m_CameraTarget, m_CameraTarget.localEulerAngles.x, m_CameraTarget.localEulerAngles.y + mouseX, m_CameraTarget.localEulerAngles.z);
     }
 
     public void SetCameraTargetPosition(Vector3 pos)

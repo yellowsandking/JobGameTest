@@ -37,7 +37,7 @@ public class ManagerAdmin : Singleton<ManagerAdmin>
         await UniTask.NextFrame();
         // 注册各类逻辑管理器
         await RegisterLogicMgr(ResourceLoadMgr.Instance);
-        await RegisterLogicMgr(BattleMgr.Instance)
+        await RegisterLogicMgr(BattleMgr.Instance);
         await RegisterLogicMgr(CameraMgr.Instance);
         await RegisterLogicMgr(InputMgr.Instance);
     }

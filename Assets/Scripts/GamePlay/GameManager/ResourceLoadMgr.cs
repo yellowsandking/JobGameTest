@@ -87,5 +87,4 @@ public class ResourceLoadMgr : GameLogicMgr<ResourceLoadMgr>
         Debug.LogError("Pool object is not enough, sourceKey: " + sourceKey);
         return null;
     }
-
 }

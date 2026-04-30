@@ -1,0 +1,33 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using System;
+
+public class ActorBase
+{
+    // Œª÷√
+    protected Vector3 m_Pos;
+    protected AddressablePoolObject m_SelfObj;
+    public Transform m_SelfTF;
+
+    public void Init(Vector3 pos, AddressablePoolObject obj)
+    {
+        m_Pos = pos;
+        m_SelfObj = obj;
+        m_SelfTF = m_SelfObj.Object.transform;
+        OnInit();
+    }
+
+    public virtual void Update()
+    {
+    }
+
+    public virtual void OnInit()
+    {
+    }
+
+    public void Dispose()
+    {
+        m_SelfObj.Dispose();
+    }
+}
