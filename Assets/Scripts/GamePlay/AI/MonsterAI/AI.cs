@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq.Expressions;
+using UnityEditor.Build.Pipeline;
 using UnityEngine;
 
 public class AI : IAI
@@ -67,9 +68,10 @@ public class AI : IAI
         if (distance > 2)
         {
             m_SelfTF.position += m_SelfTF.forward * m_MoveSpeed * deltaTime;
+            return true;
         }
 
-        return true;
+        return false;
 
     }
 
@@ -99,9 +101,22 @@ public class AI : IAI
     private void ChangeState(AIBehavoirType eState, float fKeepTime = 0f)
     {
         m_CurrentBehaviorType = eState;
-        //m_fStateKeepTime = Time.realtimeSinceStartup + fKeepTime;
+        switch (eState)
+        {
+            case AIBehavoirType.eIdle:
+                m_Actor.Animator.PlayAnimation(ActorAnimState.Idle);
+                break;
+            case AIBehavoirType.eFindPlayer:
+                m_Actor.Animator.PlayAnimation(ActorAnimState.Run);
+                break;
+            case AIBehavoirType.eAttack:
+                m_Actor.Animator.PlayAnimation(ActorAnimState.Attack);
+                break;
+        }
     }
 
     public void Clear()
     { }
+    //m_fStateKeepTime = Time.realtimeSinceStartup + fKeepTime;
 }
+

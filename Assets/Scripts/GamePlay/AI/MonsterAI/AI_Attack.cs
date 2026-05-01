@@ -7,8 +7,8 @@ public class AI_Attack : IAIBehavior
 {
     private AI m_AI;
 
-    private float m_AddTime = 0;
-    private const float INTERVAL_TIME = 0.04f;
+    float m_LastCheckTime = 0f;
+    float m_CurrentTime = 0;
 
     public AI_Attack(AI ai)
     {
@@ -22,14 +22,16 @@ public class AI_Attack : IAIBehavior
 
     public bool Update(float deltTime)
     {
-        //m_AddTime += deltTime;
-        //if (m_AddTime < INTERVAL_TIME)
-        //{
-        //    return false;
-        //}
-        //m_AddTime = 0;
-
+        m_CurrentTime = Time.realtimeSinceStartup;
+        if (m_CurrentTime < m_LastCheckTime + 2.0f)
+        {
+            return false;
+        }
         bool result = m_AI.AttackPlayer(deltTime);
+        if (result == true)
+        {
+            m_LastCheckTime = Time.realtimeSinceStartup;
+        }
         return result;
     }
 }

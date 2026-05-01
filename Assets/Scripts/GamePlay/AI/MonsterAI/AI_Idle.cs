@@ -22,13 +22,6 @@ public class AI_Idle : IAIBehavior
 
     public bool Update(float deltTime)
     {
-        //m_AddTime += deltTime;
-        //if (m_AddTime < INTERVAL_TIME)
-        //{
-        //    return false;
-        //}
-        //m_AddTime = 0;
-
         bool result = m_AI.Idle();
         return result;
     }

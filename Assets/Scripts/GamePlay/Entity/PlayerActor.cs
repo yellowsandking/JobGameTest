@@ -8,6 +8,9 @@ public class PlayerActor : ActorBase
     int m_MoveSpeed = 20;
     public override void OnInit()
     {
+        m_ActorType = ActorType.Player;
+        m_PropSet[PropType.HP_MAX] = 100;
+        m_PropSet[PropType.HP_CUR] = 100;
     }
 
     public override void Update()

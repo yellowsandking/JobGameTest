@@ -10,7 +10,7 @@ public enum ActorAnimState
     Dead
 }
 
-public class ActorAnimator
+public class ActorAnimatorComponent
 {
     static readonly int SpeedID = Animator.StringToHash("Speed");
     static readonly int AttackID = Animator.StringToHash("Attack");

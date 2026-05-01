@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BattkeEventReceiver : MonoBehaviour
+public class BattleEventComponent : MonoBehaviour
 {
     ActorBase m_Actor;
     public void SetOwner(ActorBase actor)
@@ -13,5 +13,6 @@ public class BattkeEventReceiver : MonoBehaviour
     public void AttackAction()
     {
         Debug.LogError("AttackAction");
+        m_Actor.SkillComponent.UseSkill();
     }
 }

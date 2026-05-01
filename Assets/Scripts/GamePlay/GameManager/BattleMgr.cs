@@ -8,6 +8,11 @@ public class BattleMgr : GameLogicMgr<BattleMgr>
     List<ActorBase> m_ActorList = new List<ActorBase>();
     PlayerActor m_PlayerActor = null;
 
+    public List<ActorBase> actorList
+    {
+        get { return m_ActorList; }
+    }
+
     public PlayerActor mainPlayer
     {
         get { return m_PlayerActor; }
