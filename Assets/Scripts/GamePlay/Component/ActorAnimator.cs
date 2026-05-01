@@ -17,7 +17,9 @@ public class ActorAnimator
     static readonly int DeadID = Animator.StringToHash("Dead");
 
     public ActorBase m_Actor;
-    public Animator m_Animator;
+    Animator m_Animator;
+
+    public Animator Animator => m_Animator;
 
     public void Init(ActorBase actor)
     {

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using Unity.VisualScripting;
 
 public class ActorBase
 {
@@ -21,6 +22,7 @@ public class ActorBase
         m_SelfTF.position = m_Pos;
         m_Animator = new ActorAnimator();
         m_Animator.Init(this);
+        GameHelper.AddComponent<BattkeEventReceiver>(m_Animator.Animator.gameObject).SetOwner(this);
         OnInit();
     }
 
