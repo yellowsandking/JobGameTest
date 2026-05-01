@@ -17,5 +17,12 @@ public class InputMgr : GameLogicMgr<InputMgr>
         return UniTask.CompletedTask;
     }
 
+    public override void OnUpdate()
+    {
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            BattleMgr.Instance.mainPlayer.Animator.PlayAnimation(ActorAnimState.Attack);
+        }
+    }
 }
 

@@ -11,6 +11,8 @@ public class ActorBase
     protected ActorAnimator m_Animator;
     public Transform m_SelfTF;
 
+    public ActorAnimator Animator => m_Animator;
+
     public void Init(Vector3 pos, AddressablePoolObject obj)
     {
         m_Pos = pos;
