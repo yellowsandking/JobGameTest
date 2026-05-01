@@ -4,12 +4,10 @@ using UnityEngine;
 
 public class PlayerActor : ActorBase
 {
-    Animator m_Animator = null;
     int m_Run = 1;
     int m_MoveSpeed = 20;
     public override void OnInit()
     {
-        m_Animator = m_SelfTF.GetComponentInChildren<Animator>();
     }
 
     public override void Update()
@@ -20,7 +18,7 @@ public class PlayerActor : ActorBase
             if (m_Run > 0)
             {
                 m_Run = 0;
-                m_Animator.SetInteger("Speed", m_Run);
+                m_Animator.PlayAnimation(ActorAnimState.Idle);
             }
             return;
         }
@@ -30,6 +28,6 @@ public class PlayerActor : ActorBase
         m_SelfTF.rotation = Quaternion.LookRotation(velocity);
 
         m_Run = 1;
-        m_Animator.SetInteger("Speed", m_Run);
+        m_Animator.PlayAnimation(ActorAnimState.Run);
     }
 }
