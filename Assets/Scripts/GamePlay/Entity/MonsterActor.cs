@@ -12,7 +12,7 @@ public class MonsterActor : ActorBase
         m_AI.Init(this);
         m_PropSet[PropType.HP_MAX] = 100;
         m_PropSet[PropType.HP_CUR] = 100;
-        m_PropSet[PropType.MOVE_SPEED] = 8;
+        m_PropSet[PropType.MOVE_SPEED] = 5;
         m_PropSet[PropType.ROTATE_SPEED] = 200;
     }
     public override void Update()

@@ -84,7 +84,7 @@ public class AI : IAI
 
         // 判断是否在指定距离内
         float distance = Vector3.Distance(player.m_SelfTF.position, m_SelfTF.position);
-        if (distance > 3)
+        if (distance > 2)
         {
             return false;
         }
@@ -99,6 +99,10 @@ public class AI : IAI
 
     private void ChangeState(AIBehavoirType eState, float fKeepTime = 0f)
     {
+        if (m_CurrentBehaviorType == eState)
+        {
+            return;
+        }
         switch (eState)
         {
             case AIBehavoirType.eIdle:
