@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 先用技能组件简单实现技能系统，包含一个扇形范围伤害技能
+/// ???ü????????????????????????????η?Χ???????
 /// </summary>
 public class SkillComponent
 {
@@ -31,14 +31,14 @@ public class SkillComponent
     }
 
     /// <summary>
-    /// 扇形范围内的敌人（默认60度，向量夹角要除以2所以angle是30）
+    /// ???η?Χ??????????60????????н??????2????angle??30??
     /// </summary>
     /// <param name="angle"></param>
     /// <returns></returns>
     public void GetEnemyListInSector(float angle = 30)
     {
         m_EnemyList.Clear();
-        // 得到前方扇形angle度区域内的敌人
+        // ??????????angle????????????
         for (int i = 0; i < BattleMgr.Instance.actorList.Count; ++i)
         {
             ActorBase actor = BattleMgr.Instance.actorList[i];
@@ -46,12 +46,12 @@ public class SkillComponent
             {
                 continue;
             }
-            float distance = Vector3.Distance(actor.m_SelfTF.position, m_Actor.m_SelfTF.position);
+            float distance = Vector3.Distance(actor.Position, m_Actor.Position);
             if (distance > 3)
             {
                 continue;
             }
-            float dirAngle = Mathf.Abs(Vector3.Angle(m_Actor.m_SelfTF.forward, actor.m_SelfTF.position - m_Actor.m_SelfTF.position));
+            float dirAngle = Mathf.Abs(Vector3.Angle(m_Actor.Forward, actor.Position - m_Actor.Position));
             if (dirAngle < angle)
             {
                 m_EnemyList.Add(actor);
@@ -61,21 +61,21 @@ public class SkillComponent
 
     public void Update()
     {
-        // 画扇形范围
+        // ?????η?Χ
         int radius = 3;
         int angle = 60;
 
-        Vector3 forward = m_Actor.m_SelfTF.forward;
+        Vector3 forward = m_Actor.Forward;
         Vector3 leftDir = Quaternion.Euler(0, -angle / 2, 0) * forward;
         Vector3 rightDir = Quaternion.Euler(0, angle / 2, 0) * forward;
 
-        // 画两条边
-        Debug.DrawLine(m_Actor.m_SelfTF.position, m_Actor.m_SelfTF.position + leftDir * radius, Color.green);
-        Debug.DrawLine(m_Actor.m_SelfTF.position, m_Actor.m_SelfTF.position + rightDir * radius, Color.green);
+        // ????????
+        Debug.DrawLine(m_Actor.Position, m_Actor.Position + leftDir * radius, Color.green);
+        Debug.DrawLine(m_Actor.Position, m_Actor.Position + rightDir * radius, Color.green);
 
-        // 画弧线（用多段线逼近）
+        // ?????????????????
         int segments = 10;
-        Vector3 prevPoint = m_Actor.m_SelfTF.position + leftDir * radius;
+        Vector3 prevPoint = m_Actor.Position + leftDir * radius;
 
         for (int i = 1; i <= segments; i++)
         {
@@ -83,7 +83,7 @@ public class SkillComponent
             float currentAngle = -angle / 2 + angle * t;
 
             Vector3 dir = Quaternion.Euler(0, currentAngle, 0) * forward;
-            Vector3 nextPoint = m_Actor.m_SelfTF.position + dir * radius;
+            Vector3 nextPoint = m_Actor.Position + dir * radius;
 
             Debug.DrawLine(prevPoint, nextPoint, Color.green);
             prevPoint = nextPoint;

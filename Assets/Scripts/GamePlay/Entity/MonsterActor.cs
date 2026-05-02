@@ -18,6 +18,7 @@ public class MonsterActor : ActorBase
     public override void Update()
     {
         m_AI.LogicUpdate();
+        SyncPresentation();
     }
 
     public override void OnDamage(ActorBase from, float damage)

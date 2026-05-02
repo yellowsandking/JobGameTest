@@ -7,14 +7,31 @@ using UnityEngine;
 
 public class ActorBase : IDamage
 {
-    // Œª÷√
     protected Vector3 m_Pos;
-    protected AddressablePoolObject m_SelfObj;
+    protected Quaternion m_Rotation = Quaternion.identity;
+    protected ActorPresentation m_Presentation;
     protected ActorAnimatorComponent m_Animator;
     protected SkillComponent m_SkillComponent;
     public PropSet m_PropSet;
     public ActorType m_ActorType;
-    public Transform m_SelfTF;
+
+    /// <summary>???????? AI ???????</summary>
+    public Vector3 Position
+    {
+        get => m_Pos;
+        set => m_Pos = value;
+    }
+
+    /// <summary>????</summary>
+    public Quaternion Rotation
+    {
+        get => m_Rotation;
+        set => m_Rotation = value;
+    }
+
+    public Vector3 Forward => m_Rotation * Vector3.forward;
+
+    public ActorPresentation Presentation => m_Presentation;
 
     public ActorAnimatorComponent Animator => m_Animator;
     public SkillComponent SkillComponent => m_SkillComponent;
@@ -22,9 +39,9 @@ public class ActorBase : IDamage
     public void Init(Vector3 pos, AddressablePoolObject obj)
     {
         m_Pos = pos;
-        m_SelfObj = obj;
-        m_SelfTF = m_SelfObj.Object.transform;
-        m_SelfTF.position = m_Pos;
+        m_Presentation = new ActorPresentation(obj);
+        m_Rotation = m_Presentation.ReadWorldRotation();
+        SyncPresentation();
         m_Animator = new ActorAnimatorComponent();
         m_Animator.Init(this);
         m_SkillComponent = new SkillComponent();
@@ -32,6 +49,15 @@ public class ActorBase : IDamage
         m_PropSet = new PropSet();
         GameHelper.AddComponent<BattleEventComponent>(m_Animator.Animator.gameObject).SetOwner(this);
         OnInit();
+    }
+
+    /// <summary>?????????? Transform?</summary>
+    protected void SyncPresentation()
+    {
+        if (m_Presentation != null)
+        {
+            m_Presentation.ApplyWorldPose(m_Pos, m_Rotation);
+        }
     }
 
     public virtual void Update()
@@ -45,7 +71,8 @@ public class ActorBase : IDamage
 
     public void Dispose()
     {
-        m_SelfObj.Dispose();
+        m_Presentation?.Dispose();
+        m_Presentation = null;
     }
 
     public virtual void OnDamage(ActorBase from, float damage)

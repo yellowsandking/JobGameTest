@@ -24,7 +24,7 @@ public class ActorAnimatorComponent
     public void Init(ActorBase actor)
     {
         m_Actor = actor;
-        m_Animator = m_Actor.m_SelfTF.GetComponentInChildren<Animator>();
+        m_Animator = m_Actor.Presentation.GetAnimatorInChildren();
     }
 
     public void PlayAnimation(ActorAnimState state)

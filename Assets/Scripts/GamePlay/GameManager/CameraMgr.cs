@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -96,7 +96,7 @@ public class CameraMgr : GameLogicMgr<CameraMgr>
             return;
         }
 
-        m_CameraTarget.position = BattleMgr.Instance.mainPlayer.m_SelfTF.position;
+        m_CameraTarget.position = BattleMgr.Instance.mainPlayer.Position;
         //CameraRotate();
     }
 

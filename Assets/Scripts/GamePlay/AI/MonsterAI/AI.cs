@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using UnityEngine;
 
@@ -7,7 +7,6 @@ public class AI : IAI
     public IAIBehavior[] m_Behaviors = new IAIBehavior[(int)AIBehavoirType.eMax];
     AIBehavoirType m_CurrentBehaviorType = AIBehavoirType.eIdle;
     ActorBase m_Actor = null;
-    Transform m_SelfTF = null;
 
     public ActorBase actor
     {
@@ -26,7 +25,6 @@ public class AI : IAI
             return;
         }
         m_Actor = actor;
-        m_SelfTF = actor.m_SelfTF;
 
         m_Behaviors[0] = new AI_Attack(this);
         m_Behaviors[1] = new AI_Find_Player(this);
@@ -58,7 +56,7 @@ public class AI : IAI
     {
         PlayerActor player = BattleMgr.Instance.mainPlayer;
         // 移动
-        float distance = Vector3.Distance(player.m_SelfTF.position, m_SelfTF.position);
+        float distance = Vector3.Distance(player.Position, m_Actor.Position);
 
         if (distance > 6)
         {
@@ -69,13 +67,13 @@ public class AI : IAI
         if (distance > 2)
         {
             // 转向
-            Vector3 dir = player.m_SelfTF.position - m_SelfTF.position;
+            Vector3 dir = player.Position - m_Actor.Position;
             Quaternion targetLook = Quaternion.LookRotation(dir);
-            Quaternion qua = Quaternion.RotateTowards(m_SelfTF.rotation, targetLook, m_Actor.m_PropSet[PropType.ROTATE_SPEED] * Time.deltaTime);
-            m_SelfTF.rotation = qua;
+            Quaternion qua = Quaternion.RotateTowards(m_Actor.Rotation, targetLook, m_Actor.m_PropSet[PropType.ROTATE_SPEED] * Time.deltaTime);
+            m_Actor.Rotation = qua;
 
             //移动
-            m_SelfTF.position += m_SelfTF.forward * m_Actor.m_PropSet[PropType.MOVE_SPEED] * deltaTime;
+            m_Actor.Position += m_Actor.Forward * m_Actor.m_PropSet[PropType.MOVE_SPEED] * deltaTime;
             return true;
         }
 
@@ -94,7 +92,7 @@ public class AI : IAI
         PlayerActor player = BattleMgr.Instance.mainPlayer;
 
         // 判断是否在指定距离内
-        float distance = Vector3.Distance(player.m_SelfTF.position, m_SelfTF.position);
+        float distance = Vector3.Distance(player.Position, m_Actor.Position);
         if (distance > 2)
         {
             return false;
