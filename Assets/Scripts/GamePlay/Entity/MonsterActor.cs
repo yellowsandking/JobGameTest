@@ -19,4 +19,14 @@ public class MonsterActor : ActorBase
     {
         m_AI.LogicUpdate();
     }
+
+    public override void OnDamage(ActorBase from, float damage)
+    {
+        m_PropSet[PropType.HP_CUR] -= damage;
+        if (m_PropSet[PropType.HP_CUR] <= 0)
+        {
+            m_PropSet[PropType.HP_CUR] = 0;
+            m_Animator.PlayAnimation(ActorAnimState.Dead);
+        }
+    }
 }

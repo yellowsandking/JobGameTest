@@ -5,7 +5,7 @@ using System.Diagnostics;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class ActorBase
+public class ActorBase : IDamage
 {
     // Œª÷√
     protected Vector3 m_Pos;
@@ -46,5 +46,9 @@ public class ActorBase
     public void Dispose()
     {
         m_SelfObj.Dispose();
+    }
+
+    public virtual void OnDamage(ActorBase from, float damage)
+    {
     }
 }

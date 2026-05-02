@@ -12,7 +12,7 @@ public class BattleEventComponent : MonoBehaviour
 
     public void AttackAction()
     {
-        Debug.LogError("AttackAction");
+        //Debug.LogError("AttackAction");
         m_Actor.SkillComponent.UseSkill();
     }
 }

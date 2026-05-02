@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 先用技能组件简单实现技能系统，包含一个扇形范围伤害技能
+/// </summary>
 public class SkillComponent
 {
     ActorBase m_Actor;
@@ -14,7 +17,7 @@ public class SkillComponent
 
     public void UseSkill()
     {
-        Debug.LogError("Use skill");
+        //Debug.LogError("Use skill");
         GetEnemyListInSector();
         if (m_EnemyList.Count == 0)
         {
@@ -22,7 +25,8 @@ public class SkillComponent
         }
         for (int i = 0; i < m_EnemyList.Count; ++i)
         {
-            Debug.LogError("Hit enemy " + m_EnemyList[i].m_SelfTF.name);
+            //Debug.LogError("Hit enemy " + m_EnemyList[i].m_SelfTF.name);
+            m_EnemyList[i].OnDamage(m_Actor, m_Actor.m_PropSet[PropType.ATT]);
         }
     }
 
@@ -70,7 +74,7 @@ public class SkillComponent
         Debug.DrawLine(m_Actor.m_SelfTF.position, m_Actor.m_SelfTF.position + rightDir * radius, Color.green);
 
         // 画弧线（用多段线逼近）
-        int segments = 20;
+        int segments = 10;
         Vector3 prevPoint = m_Actor.m_SelfTF.position + leftDir * radius;
 
         for (int i = 1; i <= segments; i++)

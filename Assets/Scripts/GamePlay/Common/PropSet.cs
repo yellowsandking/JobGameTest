@@ -8,8 +8,9 @@ public enum PropType
     None = 0,
     HP_MAX = 1,      // 最大生命值
     HP_CUR = 2,      // 当前生命值
-    MOVE_SPEED = 3,   // 移动速度
-    ROTATE_SPEED = 4, // 旋转速度
+    ATT = 3,         // 攻击力
+    MOVE_SPEED = 4,   // 移动速度
+    ROTATE_SPEED = 5, // 旋转速度
     Max,
 }
 
