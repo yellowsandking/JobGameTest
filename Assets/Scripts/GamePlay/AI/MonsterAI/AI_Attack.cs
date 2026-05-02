@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -28,6 +28,7 @@ public class AI_Attack : IAIBehavior
         m_CurrentTime = Time.realtimeSinceStartup;
         if (m_CurrentTime < m_LastAttackTime + ATTACK_DURATION)
         {
+            m_AI.FacePlayer(deltTime);
             return true;
         }
 

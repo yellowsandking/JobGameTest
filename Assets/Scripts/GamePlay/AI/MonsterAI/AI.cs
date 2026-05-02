@@ -135,6 +135,29 @@ public class AI : IAI
         separation += delta.normalized * (influenceRadius - dist);
     }
 
+    /// <summary>水平面内转向玩家，追击与攻击共用。</summary>
+    public void FacePlayer(float deltaTime)
+    {
+        PlayerActor player = BattleMgr.Instance.mainPlayer;
+        if (player == null || player.actorAnimState == ActorAnimState.Dead)
+        {
+            return;
+        }
+
+        Vector3 dir = player.Position - m_Actor.Position;
+        dir.y = 0f;
+        if (dir.sqrMagnitude < 1e-8f)
+        {
+            return;
+        }
+
+        Quaternion targetLook = Quaternion.LookRotation(dir);
+        m_Actor.Rotation = Quaternion.RotateTowards(
+            m_Actor.Rotation,
+            targetLook,
+            m_Actor.m_PropSet[PropType.ROTATE_SPEED] * deltaTime);
+    }
+
     public bool MoveToPlayer(float deltaTime)
     {
         PlayerActor player = BattleMgr.Instance.mainPlayer;
@@ -149,11 +172,7 @@ public class AI : IAI
 
         if (distance > 2)
         {
-            // 转向
-            Vector3 dir = player.Position - m_Actor.Position;
-            Quaternion targetLook = Quaternion.LookRotation(dir);
-            Quaternion qua = Quaternion.RotateTowards(m_Actor.Rotation, targetLook, m_Actor.m_PropSet[PropType.ROTATE_SPEED] * Time.deltaTime);
-            m_Actor.Rotation = qua;
+            FacePlayer(deltaTime);
 
             //移动
             m_Actor.Position += m_Actor.Forward * m_Actor.m_PropSet[PropType.MOVE_SPEED] * deltaTime;
@@ -181,6 +200,7 @@ public class AI : IAI
             return false;
         }
 
+        FacePlayer(deltaTime);
         return true;
     }
 

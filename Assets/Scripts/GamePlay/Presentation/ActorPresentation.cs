@@ -92,7 +92,7 @@ public class ActorPresentation
 
     void PlayAnimation(ActorAnimState state)
     {
-        //Debug.Log($"[ActorPresentation] PlayAnimation trigger: {state}, root={m_Root.name}", m_Root.gameObject);
+        Debug.Log($"[ActorPresentation] PlayAnimation trigger: {state}, root={m_Root.name}", m_Root.gameObject);
 
         switch (state)
         {
