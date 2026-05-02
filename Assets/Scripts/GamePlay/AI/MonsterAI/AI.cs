@@ -1,9 +1,17 @@
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using UnityEngine;
 
 public class AI : IAI
 {
+    /// <summary>与其它怪物圆心小于此距离时产生排斥（XZ 平面）。</summary>
+    const float CrowdSeparationRadius = 1.45f;
+
+    /// <summary>与攻击目标（玩家）圆心至少保持此距离；更近则沿径向推开。</summary>
+    const float MinSeparationFromAttackTarget = 1f;
+
+    /// <summary>排斥位移相对移动速度的倍率，越大分得越开。</summary>
+    const float CrowdSeparationSpeedFactor = 1.15f;
+
     public IAIBehavior[] m_Behaviors = new IAIBehavior[(int)AIBehavoirType.eMax];
     AIBehavoirType m_CurrentBehaviorType = AIBehavoirType.eIdle;
     ActorBase m_Actor = null;
@@ -50,6 +58,81 @@ public class AI : IAI
                 break;
             }
         }
+    }
+
+    /// <summary>
+    /// Boids 式分离：与附近存活怪物相互推开，避免 Idle / 追击 / 攻击时模型重叠。
+    /// 在 <see cref="MonsterActor.Update"/> 中于 <see cref="LogicUpdate"/> 之后调用。
+    /// </summary>
+    public void ApplyCrowdSeparation(float deltaTime)
+    {
+        if (m_Actor == null || m_Actor.m_ActorType != ActorType.Monster)
+        {
+            return;
+        }
+
+        if (m_Actor.actorAnimState == ActorAnimState.Dead)
+        {
+            return;
+        }
+
+        BattleMgr battle = BattleMgr.Instance;
+        if (battle == null)
+        {
+            return;
+        }
+
+        Vector3 self = m_Actor.Position;
+        Vector3 separation = Vector3.zero;
+        IReadOnlyList<ActorBase> actors = battle.actorList;
+
+        for (int i = 0; i < actors.Count; i++)
+        {
+            ActorBase other = actors[i];
+            if (other == null || other == m_Actor)
+            {
+                continue;
+            }
+
+            if (other.m_ActorType != ActorType.Monster || other.actorAnimState == ActorAnimState.Dead)
+            {
+                continue;
+            }
+
+            AccumulateRadialSeparation(ref separation, self, other.Position, CrowdSeparationRadius);
+        }
+
+        PlayerActor player = battle.mainPlayer;
+        if (player != null && player.actorAnimState != ActorAnimState.Dead)
+        {
+            AccumulateRadialSeparation(ref separation, self, player.Position, MinSeparationFromAttackTarget);
+        }
+
+        if (separation.sqrMagnitude < 1e-8f)
+        {
+            return;
+        }
+
+        separation.y = 0f;
+        float moveSpeed = m_Actor.m_PropSet[PropType.MOVE_SPEED];
+        Vector3 dir = separation.normalized;
+        float pushMag = separation.magnitude;
+        float step = Mathf.Min(pushMag * moveSpeed * CrowdSeparationSpeedFactor * deltaTime, moveSpeed * deltaTime * 2.5f);
+        m_Actor.Position += dir * step;
+    }
+
+    /// <summary>XZ 平面：与另一点距离小于 influenceRadius 时，沿远离方向叠加分离向量。</summary>
+    static void AccumulateRadialSeparation(ref Vector3 separation, Vector3 selfWorld, Vector3 otherWorld, float influenceRadius)
+    {
+        Vector3 delta = selfWorld - otherWorld;
+        delta.y = 0f;
+        float dist = delta.magnitude;
+        if (dist < 1e-5f || dist >= influenceRadius)
+        {
+            return;
+        }
+
+        separation += delta.normalized * (influenceRadius - dist);
     }
 
     public bool MoveToPlayer(float deltaTime)

@@ -18,6 +18,11 @@ public class MonsterActor : ActorBase
     public override void Update()
     {
         m_AI.LogicUpdate();
+        if (m_AI is AI monsterAi)
+        {
+            monsterAi.ApplyCrowdSeparation(Time.deltaTime);
+        }
+
         SyncPresentation();
     }
 
