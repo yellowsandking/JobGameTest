@@ -24,7 +24,7 @@ public class AI_Find_Player : IAIBehavior
         m_CurrentTime = Time.realtimeSinceStartup;
 
         bool result = m_AI.MoveToPlayer(deltTime);
-        if (result == true)
+        if (result)
         {
             m_LastCheckTime = Time.realtimeSinceStartup;
         }

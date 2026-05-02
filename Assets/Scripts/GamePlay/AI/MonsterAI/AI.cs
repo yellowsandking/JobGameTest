@@ -1,17 +1,18 @@
 ﻿using System.Collections.Generic;
 using System.Linq.Expressions;
-using UnityEditor.Build.Pipeline;
 using UnityEngine;
 
 public class AI : IAI
 {
     public IAIBehavior[] m_Behaviors = new IAIBehavior[(int)AIBehavoirType.eMax];
     AIBehavoirType m_CurrentBehaviorType = AIBehavoirType.eIdle;
-    float m_fAISwitchTime = 0.0f;
-    float m_RotateSpeed = 200;
-    float m_MoveSpeed = 5;
     ActorBase m_Actor = null;
     Transform m_SelfTF = null;
+
+    public ActorBase actor
+    {
+        get { return m_Actor; }
+    }
 
     public AIBehavoirType currentBehaviorType
     {
@@ -25,8 +26,6 @@ public class AI : IAI
             return;
         }
         m_Actor = actor;
-        //m_SelfObj = obj;
-        //m_SelfTransform = obj.transform;
         m_SelfTF = actor.m_SelfTF;
 
         m_Behaviors[0] = new AI_Attack(this);
@@ -46,7 +45,7 @@ public class AI : IAI
             }
 
             bool resullt = behavior.Update(deltaTime);
-            if (resullt == true)
+            if (resullt)
             {
                 ChangeState((AIBehavoirType)behavior.aiType);
                 //Debug.LogError("AI type: " + behavior.aiType.ToString());
@@ -60,14 +59,14 @@ public class AI : IAI
         PlayerActor player = BattleMgr.Instance.mainPlayer;
         Vector3 dir = player.m_SelfTF.position - m_SelfTF.position;
         Quaternion targetLook = Quaternion.LookRotation(dir);
-        Quaternion qua = Quaternion.RotateTowards(m_SelfTF.rotation, targetLook, m_RotateSpeed * Time.deltaTime);
+        Quaternion qua = Quaternion.RotateTowards(m_SelfTF.rotation, targetLook, m_Actor.m_PropSet[PropType.ROTATE_SPEED] * Time.deltaTime);
         m_SelfTF.rotation = qua;
 
         // 移动
         float distance = Vector3.Distance(player.m_SelfTF.position, m_SelfTF.position);
         if (distance > 2)
         {
-            m_SelfTF.position += m_SelfTF.forward * m_MoveSpeed * deltaTime;
+            m_SelfTF.position += m_SelfTF.forward * m_Actor.m_PropSet[PropType.MOVE_SPEED] * deltaTime;
             return true;
         }
 
@@ -100,7 +99,6 @@ public class AI : IAI
 
     private void ChangeState(AIBehavoirType eState, float fKeepTime = 0f)
     {
-        m_CurrentBehaviorType = eState;
         switch (eState)
         {
             case AIBehavoirType.eIdle:
@@ -113,6 +111,7 @@ public class AI : IAI
                 m_Actor.Animator.PlayAnimation(ActorAnimState.Attack);
                 break;
         }
+        m_CurrentBehaviorType = eState;
     }
 
     public void Clear()

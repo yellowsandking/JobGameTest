@@ -12,7 +12,7 @@ public class ActorBase
     protected AddressablePoolObject m_SelfObj;
     protected ActorAnimatorComponent m_Animator;
     protected SkillComponent m_SkillComponent;
-    protected PropSet m_PropSet;
+    public PropSet m_PropSet;
     public ActorType m_ActorType;
     public Transform m_SelfTF;
 

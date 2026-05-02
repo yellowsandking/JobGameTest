@@ -23,6 +23,9 @@ public class AI_Idle : IAIBehavior
     public bool Update(float deltTime)
     {
         bool result = m_AI.Idle();
+        //if (result)
+        //{
+        //}
         return result;
     }
 }

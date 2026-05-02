@@ -5,12 +5,13 @@ using UnityEngine;
 public class PlayerActor : ActorBase
 {
     int m_Run = 1;
-    int m_MoveSpeed = 20;
     public override void OnInit()
     {
         m_ActorType = ActorType.Player;
         m_PropSet[PropType.HP_MAX] = 100;
         m_PropSet[PropType.HP_CUR] = 100;
+        m_PropSet[PropType.MOVE_SPEED] = 7;
+        m_PropSet[PropType.ROTATE_SPEED] = 500;
     }
 
     public override void Update()
@@ -26,7 +27,7 @@ public class PlayerActor : ActorBase
             return;
         }
         Vector3 velocity = new Vector3(moveDir.x, 0, moveDir.y);
-        m_Pos += velocity * m_MoveSpeed * Time.deltaTime;
+        m_Pos += velocity * m_PropSet[PropType.MOVE_SPEED] * Time.deltaTime;
         m_SelfTF.position = m_Pos;
         m_SelfTF.rotation = Quaternion.LookRotation(velocity);
 
