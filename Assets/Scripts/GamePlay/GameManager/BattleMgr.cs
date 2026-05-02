@@ -28,8 +28,7 @@ public class BattleMgr : GameLogicMgr<BattleMgr>
 
     void CreateMainPlayer()
     {
-        m_PlayerActor = new PlayerActor();
-        m_PlayerActor.Init(Vector3.zero, ResourceLoadMgr.Instance.GetPoolObjectBySourceKey("Player"));
+        m_PlayerActor = ActorSpawn.Spawn<PlayerActor>(Vector3.zero, "Player");
         m_ActorList.Add(m_PlayerActor);
     }
 
@@ -37,8 +36,7 @@ public class BattleMgr : GameLogicMgr<BattleMgr>
     {
         for (int i = 0; i < 5; ++i)
         {
-            MonsterActor enemy = new MonsterActor();
-            enemy.Init(new Vector3(5, 0, 5 * i), ResourceLoadMgr.Instance.GetPoolObjectBySourceKey("Enemy"));
+            MonsterActor enemy = ActorSpawn.Spawn<MonsterActor>(new Vector3(5, 0, 5 * i), "Enemy");
             m_ActorList.Add(enemy);
         }
     }
