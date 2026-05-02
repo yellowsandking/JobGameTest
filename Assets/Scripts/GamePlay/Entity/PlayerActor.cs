@@ -23,16 +23,18 @@ public class PlayerActor : ActorBase
             if (m_Run > 0)
             {
                 m_Run = 0;
-                m_Animator.PlayAnimation(ActorAnimState.Idle);
+                m_ActorAnimState = ActorAnimState.Idle;
+                SyncPresentation();
             }
             return;
         }
         Vector3 velocity = new Vector3(moveDir.x, 0, moveDir.y);
         m_Pos += velocity * m_PropSet[PropType.MOVE_SPEED] * Time.deltaTime;
         m_Rotation = Quaternion.LookRotation(velocity);
-        SyncPresentation();
 
         m_Run = 1;
-        m_Animator.PlayAnimation(ActorAnimState.Run);
+        m_ActorAnimState = ActorAnimState.Run;
+
+        SyncPresentation();
     }
 }

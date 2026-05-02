@@ -115,13 +115,13 @@ public class AI : IAI
         switch (eState)
         {
             case AIBehavoirType.eIdle:
-                m_Actor.Animator.PlayAnimation(ActorAnimState.Idle);
+                m_Actor.actorAnimState = ActorAnimState.Idle;
                 break;
             case AIBehavoirType.eFindPlayer:
-                m_Actor.Animator.PlayAnimation(ActorAnimState.Run);
+                m_Actor.actorAnimState = ActorAnimState.Run;
                 break;
             case AIBehavoirType.eAttack:
-                m_Actor.Animator.PlayAnimation(ActorAnimState.Attack);
+                m_Actor.TriggerAttackPresentation();
                 break;
         }
         m_CurrentBehaviorType = eState;

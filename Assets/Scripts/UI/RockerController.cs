@@ -13,12 +13,9 @@ public class RockerController : MonoBehaviour, IPointerDownHandler, IPointerUpHa
             yaoGanBGPos, eventData.position, eventData.enterEventCamera, out outPos
             );
         float S = Vector2.Distance(Vector2.zero, outPos);
-        Debug.Log("S: " + S);
-        Debug.Log("R: " + R);
         if (S > R)
         {
             outPos = outPos.normalized * R;
-            Debug.Log("outPos: " + outPos);
         }
         yaoGanLight.transform.up = outPos.normalized;
         yaoGanPos.localPosition = outPos;

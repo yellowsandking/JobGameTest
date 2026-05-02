@@ -21,7 +21,9 @@ public class InputMgr : GameLogicMgr<InputMgr>
     {
         if (Input.GetKeyDown(KeyCode.P))
         {
-            BattleMgr.Instance.mainPlayer.Animator.PlayAnimation(ActorAnimState.Attack);
+            var player = BattleMgr.Instance.mainPlayer;
+            player.TriggerAttackPresentation();
+            player.SyncPresentation();
         }
     }
 }

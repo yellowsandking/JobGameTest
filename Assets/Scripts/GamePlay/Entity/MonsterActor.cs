@@ -27,7 +27,8 @@ public class MonsterActor : ActorBase
         if (m_PropSet[PropType.HP_CUR] <= 0)
         {
             m_PropSet[PropType.HP_CUR] = 0;
-            m_Animator.PlayAnimation(ActorAnimState.Dead);
+            m_ActorAnimState = ActorAnimState.Dead;
+            SyncPresentation();
         }
     }
 }
