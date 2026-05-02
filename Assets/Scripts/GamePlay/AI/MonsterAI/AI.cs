@@ -57,18 +57,29 @@ public class AI : IAI
     public bool MoveToPlayer(float deltaTime)
     {
         PlayerActor player = BattleMgr.Instance.mainPlayer;
-        Vector3 dir = player.m_SelfTF.position - m_SelfTF.position;
-        Quaternion targetLook = Quaternion.LookRotation(dir);
-        Quaternion qua = Quaternion.RotateTowards(m_SelfTF.rotation, targetLook, m_Actor.m_PropSet[PropType.ROTATE_SPEED] * Time.deltaTime);
-        m_SelfTF.rotation = qua;
-
         // 移动
         float distance = Vector3.Distance(player.m_SelfTF.position, m_SelfTF.position);
+
+        if (distance > 6)
+        {
+            // AOI范围外
+            return false;
+        }
+
         if (distance > 2)
         {
+            // 转向
+            Vector3 dir = player.m_SelfTF.position - m_SelfTF.position;
+            Quaternion targetLook = Quaternion.LookRotation(dir);
+            Quaternion qua = Quaternion.RotateTowards(m_SelfTF.rotation, targetLook, m_Actor.m_PropSet[PropType.ROTATE_SPEED] * Time.deltaTime);
+            m_SelfTF.rotation = qua;
+
+            //移动
             m_SelfTF.position += m_SelfTF.forward * m_Actor.m_PropSet[PropType.MOVE_SPEED] * deltaTime;
             return true;
         }
+
+
 
         return false;
 

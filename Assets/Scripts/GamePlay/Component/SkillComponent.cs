@@ -42,12 +42,47 @@ public class SkillComponent
             {
                 continue;
             }
-
+            float distance = Vector3.Distance(actor.m_SelfTF.position, m_Actor.m_SelfTF.position);
+            if (distance > 3)
+            {
+                continue;
+            }
             float dirAngle = Mathf.Abs(Vector3.Angle(m_Actor.m_SelfTF.forward, actor.m_SelfTF.position - m_Actor.m_SelfTF.position));
             if (dirAngle < angle)
             {
                 m_EnemyList.Add(actor);
             }
+        }
+    }
+
+    public void Update()
+    {
+        // 画扇形范围
+        int radius = 3;
+        int angle = 60;
+
+        Vector3 forward = m_Actor.m_SelfTF.forward;
+        Vector3 leftDir = Quaternion.Euler(0, -angle / 2, 0) * forward;
+        Vector3 rightDir = Quaternion.Euler(0, angle / 2, 0) * forward;
+
+        // 画两条边
+        Debug.DrawLine(m_Actor.m_SelfTF.position, m_Actor.m_SelfTF.position + leftDir * radius, Color.green);
+        Debug.DrawLine(m_Actor.m_SelfTF.position, m_Actor.m_SelfTF.position + rightDir * radius, Color.green);
+
+        // 画弧线（用多段线逼近）
+        int segments = 20;
+        Vector3 prevPoint = m_Actor.m_SelfTF.position + leftDir * radius;
+
+        for (int i = 1; i <= segments; i++)
+        {
+            float t = (float)i / segments;
+            float currentAngle = -angle / 2 + angle * t;
+
+            Vector3 dir = Quaternion.Euler(0, currentAngle, 0) * forward;
+            Vector3 nextPoint = m_Actor.m_SelfTF.position + dir * radius;
+
+            Debug.DrawLine(prevPoint, nextPoint, Color.green);
+            prevPoint = nextPoint;
         }
     }
 }

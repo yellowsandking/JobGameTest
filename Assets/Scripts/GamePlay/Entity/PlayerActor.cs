@@ -16,6 +16,7 @@ public class PlayerActor : ActorBase
 
     public override void Update()
     {
+        m_SkillComponent.Update();
         Vector2 moveDir = InputMgr.Instance.moveDir;
         if (moveDir.sqrMagnitude <= 0)
         {

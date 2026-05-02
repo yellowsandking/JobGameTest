@@ -36,6 +36,7 @@ public class ActorBase
 
     public virtual void Update()
     {
+
     }
 
     public virtual void OnInit()
