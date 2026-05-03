@@ -4,6 +4,11 @@ public class MonsterActor : ActorBase
 {
     IAI m_AI;
 
+    protected override void ReturnSelfToPool()
+    {
+        ActorObjectPools.ReleaseMonster(this);
+    }
+
     public override void OnInit()
     {
         m_ActorType = ActorType.Monster;

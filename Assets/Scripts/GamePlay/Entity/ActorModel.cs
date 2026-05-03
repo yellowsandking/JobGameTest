@@ -25,4 +25,15 @@ public class ActorModel
         AttackPresentationIntent++;
         AnimState = ActorAnimState.Attack;
     }
+
+    /// <summary>归还对象池前重置，避免脏数据复用。</summary>
+    public void ResetForPool()
+    {
+        Position = Vector3.zero;
+        Rotation = Quaternion.identity;
+        AnimState = ActorAnimState.Idle;
+        AttackPresentationIntent = 0;
+        ActorType = default;
+        PropSet.Reset();
+    }
 }

@@ -24,7 +24,7 @@ public static class ActorSpawn
     {
         PlayerView view = RequireView<PlayerView>(poolObject);
         view.BindPoolObject(poolObject);
-        PlayerActor actor = new PlayerActor();
+        PlayerActor actor = ActorObjectPools.RentPlayer();
         actor.Init(position, view);
         return actor;
     }
@@ -46,7 +46,7 @@ public static class ActorSpawn
     {
         EnemyView view = RequireView<EnemyView>(poolObject);
         view.BindPoolObject(poolObject);
-        MonsterActor actor = new MonsterActor();
+        MonsterActor actor = ActorObjectPools.RentMonster();
         actor.Init(position, view);
         return actor;
     }
@@ -72,5 +72,17 @@ public static class ActorSpawn
         }
 
         return view;
+    }
+
+    /// <summary>回收玩家 Presenter、Model 与 View（Addressable）。</summary>
+    public static void Release(PlayerActor actor)
+    {
+        actor?.Dispose();
+    }
+
+    /// <summary>回收敌人 Presenter、Model 与 View（Addressable）。</summary>
+    public static void Release(MonsterActor actor)
+    {
+        actor?.Dispose();
     }
 }

@@ -2,11 +2,11 @@ using System;
 using UnityEngine;
 
 /// <summary>
-/// MVP — Presenter：持有 <see cref="ActorModel"/> 与 Prefab 上的 <see cref="ActorBaseView"/>，
-/// 将 Model 同步到 View，并挂载技能等组件。
+/// MVP — Presenter：持有池化的 <see cref="ActorModel"/> 与 Prefab 上的 <see cref="ActorBaseView"/>。
 /// </summary>
-public class ActorBase
+public abstract class ActorBase
 {
+    bool m_Disposed;
     ActorModel m_Model;
     ActorBaseView m_View;
 
@@ -41,7 +41,6 @@ public class ActorBase
 
     public Vector3 Forward => m_Model.Forward;
 
-    /// <summary>Prefab 上的 View（PlayerView / EnemyView 等）。</summary>
     public ActorBaseView View => m_View;
 
     public Animator Animator => m_View?.Animator;
@@ -53,7 +52,15 @@ public class ActorBase
         m_Model.TriggerAttackPresentation();
     }
 
-    /// <summary>绑定 Model 并完成组件初始化；<paramref name="view"/> 须已通过 <see cref="ActorBaseView.BindPoolObject"/> 绑定池对象。</summary>
+    /// <summary>子类在每次从池取出再 Init 时重置自身字段（如玩家跑步标记）。</summary>
+    protected virtual void ResetPresenterState()
+    {
+    }
+
+    /// <summary>将 Presenter 实例归还对应对象池。</summary>
+    protected abstract void ReturnSelfToPool();
+
+    /// <summary>绑定池化 Model 并完成初始化；<paramref name="view"/> 须已通过 <see cref="ActorBaseView.BindPoolObject"/> 绑定池对象。</summary>
     public void Init(Vector3 pos, ActorBaseView view)
     {
         if (view == null)
@@ -61,7 +68,10 @@ public class ActorBase
             throw new ArgumentNullException(nameof(view));
         }
 
-        m_Model = new ActorModel();
+        m_Disposed = false;
+        ResetPresenterState();
+
+        m_Model = ActorObjectPools.RentModel();
         m_View = view;
         view.BindPresenter(this);
 
@@ -75,13 +85,18 @@ public class ActorBase
         GameObject eventHost = view.Animator != null
             ? view.Animator.gameObject
             : view.VisualRoot;
-        GameHelper.AddComponent<BattleEventComponent>(eventHost).SetOwner(this);
+        BattleEventComponent battleEvt = eventHost.GetComponent<BattleEventComponent>();
+        if (battleEvt == null)
+        {
+            battleEvt = GameHelper.AddComponent<BattleEventComponent>(eventHost);
+        }
+
+        battleEvt.SetOwner(this);
 
         OnInit();
         SyncPresentation();
     }
 
-    /// <summary>把当前 Model 状态推送到 View。</summary>
     public void SyncPresentation()
     {
         if (m_View == null || m_Model == null)
@@ -106,10 +121,25 @@ public class ActorBase
 
     public void Dispose()
     {
+        if (m_Disposed)
+        {
+            return;
+        }
+
+        m_Disposed = true;
+
         m_View?.Dispose();
         m_View = null;
-        m_Model = null;
+
+        if (m_Model != null)
+        {
+            ActorObjectPools.ReleaseModel(m_Model);
+            m_Model = null;
+        }
+
         SkillComponent = null;
+
+        ReturnSelfToPool();
     }
 
     public virtual void OnDamage(ActorBase from, float damage)

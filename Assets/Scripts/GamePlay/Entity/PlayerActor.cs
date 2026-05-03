@@ -4,6 +4,16 @@ public class PlayerActor : ActorBase
 {
     int m_Run = 1;
 
+    protected override void ResetPresenterState()
+    {
+        m_Run = 1;
+    }
+
+    protected override void ReturnSelfToPool()
+    {
+        ActorObjectPools.ReleasePlayer(this);
+    }
+
     public override void OnInit()
     {
         m_ActorType = ActorType.Player;
