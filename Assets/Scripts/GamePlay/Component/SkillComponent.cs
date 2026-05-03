@@ -25,7 +25,7 @@ public class SkillComponent
         }
         for (int i = 0; i < m_EnemyList.Count; ++i)
         {
-            //Debug.LogError("Hit enemy " + m_EnemyList[i].m_SelfTF.name);
+            //Debug.LogError("Hit enemy ");
             m_EnemyList[i].OnDamage(m_Actor, m_Actor.m_PropSet[PropType.ATT]);
         }
     }

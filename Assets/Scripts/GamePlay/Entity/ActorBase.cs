@@ -2,13 +2,13 @@ using System;
 using UnityEngine;
 
 /// <summary>
-/// MVP — Presenter：持有 <see cref="ActorModel"/> 与 <see cref="ActorView"/>，
-/// 将 Model 状态同步到 View，并挂载技能等需反向引用 Presenter 的组件。
+/// MVP — Presenter：持有 <see cref="ActorModel"/> 与 Prefab 上的 <see cref="ActorBaseView"/>，
+/// 将 Model 同步到 View，并挂载技能等组件。
 /// </summary>
 public class ActorBase
 {
     ActorModel m_Model;
-    ActorView m_View;
+    ActorBaseView m_View;
 
     /// <summary>逻辑模型（位置、属性、展示意图等）。</summary>
     public ActorModel Model => m_Model;
@@ -41,11 +41,10 @@ public class ActorBase
 
     public Vector3 Forward => m_Model.Forward;
 
-    public ActorView View => m_View;
+    /// <summary>Prefab 上的 View（PlayerView / EnemyView 等）。</summary>
+    public ActorBaseView View => m_View;
 
-    public ActorPresentation Presentation => m_View?.Presentation;
-
-    public Animator Animator => Presentation?.Animator;
+    public Animator Animator => m_View?.Animator;
 
     public SkillComponent SkillComponent { get; private set; }
 
@@ -54,8 +53,8 @@ public class ActorBase
         m_Model.TriggerAttackPresentation();
     }
 
-    /// <summary>使用已创建的 View 完成 Model 绑定与组件初始化。</summary>
-    public void Init(Vector3 pos, ActorView view)
+    /// <summary>绑定 Model 并完成组件初始化；<paramref name="view"/> 须已通过 <see cref="ActorBaseView.BindPoolObject"/> 绑定池对象。</summary>
+    public void Init(Vector3 pos, ActorBaseView view)
     {
         if (view == null)
         {
@@ -67,14 +66,14 @@ public class ActorBase
 
         m_Model.AnimState = ActorAnimState.Idle;
         m_Model.Position = pos;
-        m_Model.Rotation = view.ViewContract.ReadWorldRotation();
+        m_Model.Rotation = view.ReadWorldRotation();
 
         SkillComponent = new SkillComponent();
         SkillComponent.Init(this);
 
-        GameObject eventHost = view.ViewContract.Animator != null
-            ? view.ViewContract.Animator.gameObject
-            : view.ViewContract.VisualRoot;
+        GameObject eventHost = view.Animator != null
+            ? view.Animator.gameObject
+            : view.VisualRoot;
         GameHelper.AddComponent<BattleEventComponent>(eventHost).SetOwner(this);
 
         OnInit();
@@ -89,7 +88,7 @@ public class ActorBase
             return;
         }
 
-        m_View.ViewContract.SyncVisual(
+        m_View.SyncVisual(
             m_Model.Position,
             m_Model.Rotation,
             m_Model.AnimState,

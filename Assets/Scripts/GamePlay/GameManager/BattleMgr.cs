@@ -28,7 +28,7 @@ public class BattleMgr : GameLogicMgr<BattleMgr>
 
     void CreateMainPlayer()
     {
-        m_PlayerActor = ActorSpawn.Spawn<PlayerActor>(Vector3.zero, "Player");
+        m_PlayerActor = ActorSpawn.SpawnPlayer(Vector3.zero, "Player");
         m_ActorList.Add(m_PlayerActor);
     }
 
@@ -36,7 +36,7 @@ public class BattleMgr : GameLogicMgr<BattleMgr>
     {
         for (int i = 0; i < 5; ++i)
         {
-            MonsterActor enemy = ActorSpawn.Spawn<MonsterActor>(new Vector3(5, 0, 5 * i), "Enemy");
+            MonsterActor enemy = ActorSpawn.SpawnEnemy(new Vector3(5, 0, 5 * i), "Enemy");
             m_ActorList.Add(enemy);
         }
     }

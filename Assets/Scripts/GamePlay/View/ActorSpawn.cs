@@ -2,12 +2,13 @@ using System;
 using UnityEngine;
 
 /// <summary>
-/// Actor 创建统一入口：构建 <see cref="ActorView"/>（View 层），再交给 Presenter <see cref="ActorBase.Init"/> 绑定 Model。
+/// Actor 创建入口：从池中取出 Prefab 实例，用 <see cref="GameObject.GetComponent{T}"/> /
+/// <see cref="GameObject.GetComponentInChildren{T}(bool)"/> 解析对应 View，再交给 Presenter 绑定。
 /// </summary>
 public static class ActorSpawn
 {
-    /// <summary>使用资源 Key 创建并初始化 Actor。</summary>
-    public static T Spawn<T>(Vector3 position, string addressableKey) where T : ActorBase, new()
+    /// <summary>生成玩家（Prefab 须含 <see cref="PlayerView"/>）。</summary>
+    public static PlayerActor SpawnPlayer(Vector3 position, string addressableKey)
     {
         if (string.IsNullOrEmpty(addressableKey))
         {
@@ -15,20 +16,61 @@ public static class ActorSpawn
         }
 
         AddressablePoolObject poolObj = ResourceLoadMgr.Instance.GetPoolObjectBySourceKey(addressableKey);
-        return Spawn<T>(position, poolObj);
+        return SpawnPlayer(position, poolObj);
     }
 
-    /// <summary>使用已有池实例创建并初始化 Actor（调用方不再单独 Dispose 该 pool 对象，由 Actor.Dispose → View 接管）。</summary>
-    public static T Spawn<T>(Vector3 position, AddressablePoolObject poolObject) where T : ActorBase, new()
+    /// <summary>生成玩家（已有池实例）。</summary>
+    public static PlayerActor SpawnPlayer(Vector3 position, AddressablePoolObject poolObject)
+    {
+        PlayerView view = RequireView<PlayerView>(poolObject);
+        view.BindPoolObject(poolObject);
+        PlayerActor actor = new PlayerActor();
+        actor.Init(position, view);
+        return actor;
+    }
+
+    /// <summary>生成敌人（Prefab 须含 <see cref="EnemyView"/>）。</summary>
+    public static MonsterActor SpawnEnemy(Vector3 position, string addressableKey)
+    {
+        if (string.IsNullOrEmpty(addressableKey))
+        {
+            throw new ArgumentException("addressableKey is null or empty.", nameof(addressableKey));
+        }
+
+        AddressablePoolObject poolObj = ResourceLoadMgr.Instance.GetPoolObjectBySourceKey(addressableKey);
+        return SpawnEnemy(position, poolObj);
+    }
+
+    /// <summary>生成敌人（已有池实例）。</summary>
+    public static MonsterActor SpawnEnemy(Vector3 position, AddressablePoolObject poolObject)
+    {
+        EnemyView view = RequireView<EnemyView>(poolObject);
+        view.BindPoolObject(poolObject);
+        MonsterActor actor = new MonsterActor();
+        actor.Init(position, view);
+        return actor;
+    }
+
+    static T RequireView<T>(AddressablePoolObject poolObject) where T : ActorBaseView
     {
         if (poolObject == null)
         {
             throw new ArgumentNullException(nameof(poolObject));
         }
 
-        ActorView view = new ActorView(poolObject);
-        T actor = new T();
-        actor.Init(position, view);
-        return actor;
+        GameObject root = poolObject.Object;
+        T view = root.GetComponent<T>();
+        if (view == null)
+        {
+            view = root.GetComponentInChildren<T>(true);
+        }
+
+        if (view == null)
+        {
+            throw new InvalidOperationException(
+                $"Prefab '{root.name}' must have a {typeof(T).Name} on the root or in children.");
+        }
+
+        return view;
     }
 }

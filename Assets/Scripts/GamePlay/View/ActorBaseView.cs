@@ -1,44 +1,51 @@
+using System;
 using UnityEngine;
 
-/// <summary>MVP — View 实现：具体 Transform / Animator 表现。</summary>
-public class ActorPresentation : IActorView
+/// <summary>
+/// 挂在角色 Prefab 上的 View 基类：实现 <see cref="IActorView"/>，负责 Transform / Animator 与对象池回收。
+/// 具体角色使用 <see cref="PlayerView"/> 或 <see cref="EnemyView"/>。
+/// </summary>
+public abstract class ActorBaseView : MonoBehaviour, IActorView
 {
     static readonly int SpeedID = Animator.StringToHash("Speed");
     static readonly int AttackID = Animator.StringToHash("Attack");
     static readonly int DeadID = Animator.StringToHash("Dead");
 
-    readonly AddressablePoolObject m_PoolObject;
-    readonly Transform m_Root;
-    readonly Animator m_Animator;
+    AddressablePoolObject m_PoolObject;
+    Animator m_Animator;
 
     ActorAnimState? m_LastSyncedAnimState;
     int m_LastAppliedAttackIntentId = -1;
 
     public Animator Animator => m_Animator;
 
-    public GameObject VisualRoot => m_Root.gameObject;
+    public GameObject VisualRoot => gameObject;
 
-    public ActorPresentation(AddressablePoolObject poolObject)
+    /// <summary>
+    /// 从对象池取出实例后由 <see cref="ActorSpawn"/> 调用：绑定池回收句柄，并重置动画同步缓存（防止复用时状态错乱）。
+    /// </summary>
+    public void BindPoolObject(AddressablePoolObject poolObject)
     {
+        if (poolObject == null)
+        {
+            throw new ArgumentNullException(nameof(poolObject));
+        }
+
         m_PoolObject = poolObject;
-        m_Root = poolObject.Object.transform;
-        m_Animator = m_Root.GetComponentInChildren<Animator>();
+        m_LastSyncedAnimState = null;
+        m_LastAppliedAttackIntentId = -1;
+        m_Animator = GetComponentInChildren<Animator>(true);
     }
 
     public Quaternion ReadWorldRotation()
     {
-        return m_Root.rotation;
-    }
-
-    public void ApplyWorldPose(Vector3 worldPosition, Quaternion worldRotation)
-    {
-        m_Root.SetPositionAndRotation(worldPosition, worldRotation);
+        return transform.rotation;
     }
 
     /// <inheritdoc />
     public void SyncVisual(Vector3 worldPosition, Quaternion worldRotation, ActorAnimState animState, int attackPresentationIntent)
     {
-        ApplyWorldPose(worldPosition, worldRotation);
+        transform.SetPositionAndRotation(worldPosition, worldRotation);
         if (m_Animator == null)
         {
             return;
@@ -105,8 +112,18 @@ public class ActorPresentation : IActorView
         }
     }
 
+    /// <inheritdoc />
     public void Dispose()
     {
-        m_PoolObject.Dispose();
+        if (m_PoolObject != null)
+        {
+            m_PoolObject.Dispose();
+            m_PoolObject = null;
+        }
+    }
+
+    protected virtual void OnDestroy()
+    {
+        m_PoolObject = null;
     }
 }
