@@ -43,9 +43,20 @@ public class BattleMgr : GameLogicMgr<BattleMgr>
 
     public override void OnUpdate()
     {
-        for (int i = 0; i < m_ActorList.Count; ++i)
+        for (int i = m_ActorList.Count - 1; i >= 0; --i)
         {
-            m_ActorList[i].Update();
+            if (m_ActorList[i] is MonsterActor monster && monster.m_IsDead)
+            {
+                if (monster.m_CanRecycle)
+                {
+                    m_ActorList.RemoveAt(i);
+                    ActorSpawn.Release(monster);
+                }
+            }
+            else
+            {
+                m_ActorList[i].Update();
+            }
         }
     }
 }
