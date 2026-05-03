@@ -175,22 +175,26 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1625516943657302352, guid: fa5157819c87cb847b7681666104d0fd, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 150
+      objectReference: {fileID: 0}
+    - target: {fileID: 1775763335035126594, guid: fa5157819c87cb847b7681666104d0fd, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3518160982083596116, guid: fa5157819c87cb847b7681666104d0fd, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 150
+      objectReference: {fileID: 0}
     - target: {fileID: 3894368421608114543, guid: fa5157819c87cb847b7681666104d0fd, type: 3}
       propertyPath: m_Name
       value: RockerUI
       objectReference: {fileID: 0}
-    - target: {fileID: 5468608204857577260, guid: fa5157819c87cb847b7681666104d0fd, type: 3}
-      propertyPath: m_Sprite
-      value: 
-      objectReference: {fileID: 21300000, guid: 6544e48a0404269469b385e9b4ed3677, type: 3}
-    - target: {fileID: 6466098906136908464, guid: fa5157819c87cb847b7681666104d0fd, type: 3}
-      propertyPath: m_Type
-      value: 0
+    - target: {fileID: 5206378394721037582, guid: fa5157819c87cb847b7681666104d0fd, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 150
       objectReference: {fileID: 0}
-    - target: {fileID: 6466098906136908464, guid: fa5157819c87cb847b7681666104d0fd, type: 3}
-      propertyPath: m_Sprite
-      value: 
-      objectReference: {fileID: 21300000, guid: 00e8974a8208392489d37d3da73d26a5, type: 3}
     - target: {fileID: 6704471220212305400, guid: fa5157819c87cb847b7681666104d0fd, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -271,18 +275,13 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7459417461626895407, guid: fa5157819c87cb847b7681666104d0fd, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8346216993719449969, guid: fa5157819c87cb847b7681666104d0fd, type: 3}
-      propertyPath: R
-      value: 150
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2110852620297983343, guid: fa5157819c87cb847b7681666104d0fd, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1574428254}
   m_SourcePrefab: {fileID: 100100000, guid: fa5157819c87cb847b7681666104d0fd, type: 3}
 --- !u!1 &705507993
 GameObject:
@@ -392,7 +391,7 @@ GameObject:
   - component: {fileID: 816450848}
   m_Layer: 0
   m_Name: Camera
-  m_TagString: Untagged
+  m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -472,7 +471,7 @@ Camera:
     height: 1
   near clip plane: 2
   far clip plane: 100
-  field of view: 28.07249
+  field of view: 17
   orthographic: 0
   orthographic size: 10
   m_Depth: 0
@@ -573,6 +572,32 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1574428252 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2110852620297983343, guid: fa5157819c87cb847b7681666104d0fd, type: 3}
+  m_PrefabInstance: {fileID: 486722185}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1574428254
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1574428252}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a9b5a4ad9b25c84d81e4033a8f4986a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HPBar: {fileID: 2022628108}
+  m_WorldCamera: {fileID: 0}
+  m_Canvas: {fileID: 0}
+  m_WorldOffset: {x: 0, y: 2, z: 0}
+--- !u!224 &2022628108 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 6788486494444090667, guid: fa5157819c87cb847b7681666104d0fd, type: 3}
+  m_PrefabInstance: {fileID: 486722185}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
