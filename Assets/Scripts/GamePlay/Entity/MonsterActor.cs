@@ -1,20 +1,20 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class MonsterActor : ActorBase
 {
-    IAI m_AI = null;
+    IAI m_AI;
+
     public override void OnInit()
     {
         m_ActorType = ActorType.Monster;
         m_AI = new AI();
         m_AI.Init(this);
-        m_PropSet[PropType.HP_MAX] = 100;
-        m_PropSet[PropType.HP_CUR] = 100;
-        m_PropSet[PropType.MOVE_SPEED] = 5;
-        m_PropSet[PropType.ROTATE_SPEED] = 500;
+        Model.PropSet[PropType.HP_MAX] = 100;
+        Model.PropSet[PropType.HP_CUR] = 100;
+        Model.PropSet[PropType.MOVE_SPEED] = 5;
+        Model.PropSet[PropType.ROTATE_SPEED] = 500;
     }
+
     public override void Update()
     {
         m_AI.LogicUpdate();
@@ -28,11 +28,11 @@ public class MonsterActor : ActorBase
 
     public override void OnDamage(ActorBase from, float damage)
     {
-        m_PropSet[PropType.HP_CUR] -= damage;
-        if (m_PropSet[PropType.HP_CUR] <= 0)
+        Model.PropSet[PropType.HP_CUR] -= damage;
+        if (Model.PropSet[PropType.HP_CUR] <= 0)
         {
-            m_PropSet[PropType.HP_CUR] = 0;
-            m_ActorAnimState = ActorAnimState.Dead;
+            Model.PropSet[PropType.HP_CUR] = 0;
+            Model.AnimState = ActorAnimState.Dead;
             SyncPresentation();
         }
     }

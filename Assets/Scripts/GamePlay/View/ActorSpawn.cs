@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 /// <summary>
-/// Actor 创建统一入口：按 Addressable Key 取池对象、构建 <see cref="ActorView"/>、实例化逻辑体并 <see cref="ActorBase.Init"/>。
+/// Actor 创建统一入口：构建 <see cref="ActorView"/>（View 层），再交给 Presenter <see cref="ActorBase.Init"/> 绑定 Model。
 /// </summary>
 public static class ActorSpawn
 {

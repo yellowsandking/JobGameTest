@@ -1,17 +1,7 @@
 using UnityEngine;
 
-public enum ActorAnimState
-{
-    Idle,
-    Run,
-    Attack,
-    Dead
-}
-
-/// <summary>
-/// 角色场景表现：根 Transform、Animator 参数与逻辑层位姿/动画状态同步。
-/// </summary>
-public class ActorPresentation
+/// <summary>MVP — View 实现：具体 Transform / Animator 表现。</summary>
+public class ActorPresentation : IActorView
 {
     static readonly int SpeedID = Animator.StringToHash("Speed");
     static readonly int AttackID = Animator.StringToHash("Attack");
@@ -45,9 +35,7 @@ public class ActorPresentation
         m_Root.SetPositionAndRotation(worldPosition, worldRotation);
     }
 
-    /// <summary>
-    /// 同步位姿；按逻辑状态驱动 Animator（Attack 依赖 attackPresentationIntent 区分多次触发）。
-    /// </summary>
+    /// <inheritdoc />
     public void SyncVisual(Vector3 worldPosition, Quaternion worldRotation, ActorAnimState animState, int attackPresentationIntent)
     {
         ApplyWorldPose(worldPosition, worldRotation);
@@ -92,8 +80,6 @@ public class ActorPresentation
 
     void PlayAnimation(ActorAnimState state)
     {
-        Debug.Log($"[ActorPresentation] PlayAnimation trigger: {state}, root={m_Root.name}", m_Root.gameObject);
-
         switch (state)
         {
             case ActorAnimState.Idle:

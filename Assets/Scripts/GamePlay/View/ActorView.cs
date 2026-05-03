@@ -1,14 +1,18 @@
 using UnityEngine;
 
 /// <summary>
-/// View 层：持有 Addressable 实例对应的 <see cref="ActorPresentation"/>，负责与逻辑 Actor 绑定前的视觉资源生命周期。
-/// 通常由 <see cref="ActorSpawn"/> 创建并与 <see cref="ActorBase.Init(Vector3, ActorView)"/> 绑定。
+/// MVP — View 容器：装配具体 <see cref="ActorPresentation"/>，对外可同时作为 <see cref="IActorView"/> 使用。
+/// 由 <see cref="ActorSpawn"/> 创建，再由 Presenter（<see cref="ActorBase"/>）绑定 Model。
 /// </summary>
 public class ActorView
 {
     readonly ActorPresentation m_Presentation;
 
+    /// <summary>具体表现实现（Animator / Transform）。</summary>
     public ActorPresentation Presentation => m_Presentation;
+
+    /// <summary>View 接口，供 Presenter 按契约刷新。</summary>
+    public IActorView ViewContract => m_Presentation;
 
     public ActorView(AddressablePoolObject poolObject)
     {

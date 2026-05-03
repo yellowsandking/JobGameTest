@@ -1,64 +1,60 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
-using Unity.VisualScripting;
 using UnityEngine;
 
+/// <summary>
+/// MVP — Presenter：持有 <see cref="ActorModel"/> 与 <see cref="ActorView"/>，
+/// 将 Model 状态同步到 View，并挂载技能等需反向引用 Presenter 的组件。
+/// </summary>
 public class ActorBase
 {
-    protected Vector3 m_Pos;
-    protected Quaternion m_Rotation = Quaternion.identity;
-    protected ActorView m_View;
-    protected SkillComponent m_SkillComponent;
-    protected ActorAnimState m_ActorAnimState;
-    int m_AttackPresentationIntent;
+    ActorModel m_Model;
+    ActorView m_View;
 
-    public PropSet m_PropSet;
-    public ActorType m_ActorType;
+    /// <summary>逻辑模型（位置、属性、展示意图等）。</summary>
+    public ActorModel Model => m_Model;
 
-    /// <summary>???????? AI ???????</summary>
-    public Vector3 Position
+    public PropSet m_PropSet => m_Model.PropSet;
+
+    public ActorType m_ActorType
     {
-        get => m_Pos;
-        set => m_Pos = value;
+        get => m_Model.ActorType;
+        set => m_Model.ActorType = value;
     }
 
-    /// <summary>????</summary>
+    public Vector3 Position
+    {
+        get => m_Model.Position;
+        set => m_Model.Position = value;
+    }
+
     public Quaternion Rotation
     {
-        get => m_Rotation;
-        set => m_Rotation = value;
+        get => m_Model.Rotation;
+        set => m_Model.Rotation = value;
     }
 
     public ActorAnimState actorAnimState
     {
-        get => m_ActorAnimState;
-        set => m_ActorAnimState = value;
+        get => m_Model.AnimState;
+        set => m_Model.AnimState = value;
     }
 
-    public Vector3 Forward => m_Rotation * Vector3.forward;
+    public Vector3 Forward => m_Model.Forward;
 
-    /// <summary>????? View?????????</summary>
     public ActorView View => m_View;
 
     public ActorPresentation Presentation => m_View?.Presentation;
 
-    /// <summary>?? Animator ??????? null??</summary>
     public Animator Animator => Presentation?.Animator;
 
-    public SkillComponent SkillComponent => m_SkillComponent;
+    public SkillComponent SkillComponent { get; private set; }
 
-    /// <summary>?????????????? Attack Trigger ???</summary>
     public void TriggerAttackPresentation()
     {
-        m_AttackPresentationIntent++;
-        m_ActorAnimState = ActorAnimState.Attack;
+        m_Model.TriggerAttackPresentation();
     }
 
-    /// <summary>
-    /// ????????? View ???View ????????????????
-    /// </summary>
+    /// <summary>使用已创建的 View 完成 Model 绑定与组件初始化。</summary>
     public void Init(Vector3 pos, ActorView view)
     {
         if (view == null)
@@ -66,28 +62,38 @@ public class ActorBase
             throw new ArgumentNullException(nameof(view));
         }
 
+        m_Model = new ActorModel();
         m_View = view;
-        m_ActorAnimState = ActorAnimState.Idle;
-        m_Pos = pos;
-        m_Rotation = Presentation.ReadWorldRotation();
 
-        m_SkillComponent = new SkillComponent();
-        m_SkillComponent.Init(this);
-        m_PropSet = new PropSet();
+        m_Model.AnimState = ActorAnimState.Idle;
+        m_Model.Position = pos;
+        m_Model.Rotation = view.ViewContract.ReadWorldRotation();
 
-        GameObject eventHost = Presentation.Animator != null
-            ? Presentation.Animator.gameObject
-            : Presentation.VisualRoot;
+        SkillComponent = new SkillComponent();
+        SkillComponent.Init(this);
+
+        GameObject eventHost = view.ViewContract.Animator != null
+            ? view.ViewContract.Animator.gameObject
+            : view.ViewContract.VisualRoot;
         GameHelper.AddComponent<BattleEventComponent>(eventHost).SetOwner(this);
 
         OnInit();
         SyncPresentation();
     }
 
-    /// <summary>?????? <see cref="actorAnimState"/> ?????? Animator?</summary>
+    /// <summary>把当前 Model 状态推送到 View。</summary>
     public void SyncPresentation()
     {
-        Presentation?.SyncVisual(m_Pos, m_Rotation, m_ActorAnimState, m_AttackPresentationIntent);
+        if (m_View == null || m_Model == null)
+        {
+            return;
+        }
+
+        m_View.ViewContract.SyncVisual(
+            m_Model.Position,
+            m_Model.Rotation,
+            m_Model.AnimState,
+            m_Model.AttackPresentationIntent);
     }
 
     public virtual void Update()
@@ -102,6 +108,8 @@ public class ActorBase
     {
         m_View?.Dispose();
         m_View = null;
+        m_Model = null;
+        SkillComponent = null;
     }
 
     public virtual void OnDamage(ActorBase from, float damage)
