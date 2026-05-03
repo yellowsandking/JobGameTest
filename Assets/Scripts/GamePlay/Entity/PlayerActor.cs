@@ -11,6 +11,7 @@ public class PlayerActor : ActorBase
         Model.PropSet[PropType.HP_CUR] = 100;
         Model.PropSet[PropType.MOVE_SPEED] = 7;
         Model.PropSet[PropType.ROTATE_SPEED] = 500;
+        Model.PropSet[PropType.ATT] = 1;
     }
 
     public override void Update()

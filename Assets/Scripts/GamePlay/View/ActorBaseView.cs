@@ -14,6 +14,9 @@ public abstract class ActorBaseView : MonoBehaviour, IActorView
     AddressablePoolObject m_PoolObject;
     Animator m_Animator;
 
+    /// <summary>绑定后的逻辑层 Presenter，运行期由 <see cref="ActorBase.Init"/> 赋值，供调试/编辑器查看。</summary>
+    public ActorBase Presenter { get; private set; }
+
     ActorAnimState? m_LastSyncedAnimState;
     int m_LastAppliedAttackIntentId = -1;
 
@@ -24,6 +27,16 @@ public abstract class ActorBaseView : MonoBehaviour, IActorView
     /// <summary>
     /// 从对象池取出实例后由 <see cref="ActorSpawn"/> 调用：绑定池回收句柄，并重置动画同步缓存（防止复用时状态错乱）。
     /// </summary>
+    internal void BindPresenter(ActorBase presenter)
+    {
+        Presenter = presenter;
+    }
+
+    internal void ClearPresenter()
+    {
+        Presenter = null;
+    }
+
     public void BindPoolObject(AddressablePoolObject poolObject)
     {
         if (poolObject == null)
@@ -115,6 +128,7 @@ public abstract class ActorBaseView : MonoBehaviour, IActorView
     /// <inheritdoc />
     public void Dispose()
     {
+        ClearPresenter();
         if (m_PoolObject != null)
         {
             m_PoolObject.Dispose();
@@ -124,6 +138,7 @@ public abstract class ActorBaseView : MonoBehaviour, IActorView
 
     protected virtual void OnDestroy()
     {
+        ClearPresenter();
         m_PoolObject = null;
     }
 }

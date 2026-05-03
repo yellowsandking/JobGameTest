@@ -63,6 +63,7 @@ public class ActorBase
 
         m_Model = new ActorModel();
         m_View = view;
+        view.BindPresenter(this);
 
         m_Model.AnimState = ActorAnimState.Idle;
         m_Model.Position = pos;
