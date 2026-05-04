@@ -4,11 +4,19 @@ using UnityEngine.UI;
 
 /// <summary>
 /// 根据 <see cref="BattleMgr"/> 中的角色列表实例化血条模板，并按类型切换 HPPlayer / HPEnemy 子节点显示。
+/// 血条实例通过 <see cref="ObjectPool{T}"/> 复用；仅在 <see cref="BattleMgr.actorList"/> 成员或顺序变化时重建条数与类型显示。
 /// </summary>
 public class HPBarMgr : MonoBehaviour
 {
     const string HPPlayerChildName = "HPPlayer";
     const string HPEnemyChildName = "HPEnemy";
+
+    sealed class HPBarPoolItem
+    {
+        public Transform Transform;
+        public Image HpPlayerImage;
+        public Image HpEnemyImage;
+    }
 
     [SerializeField]
     Transform m_HPBar;
@@ -25,26 +33,105 @@ public class HPBarMgr : MonoBehaviour
     [SerializeField]
     Vector3 m_WorldOffset = new Vector3(0f, 3f, 0f);
 
-    readonly List<Transform> m_HPBarInstances = new List<Transform>();
+    readonly List<HPBarPoolItem> m_HPBarInstances = new List<HPBarPoolItem>();
+    readonly List<ActorBase> m_CachedActorRefs = new List<ActorBase>();
+    readonly List<HPBarPoolItem> m_AllPooledItemsForDestroy = new List<HPBarPoolItem>();
+
+    ObjectPool<HPBarPoolItem> m_Pool;
 
     void Awake()
     {
         if (m_HPBar != null)
         {
             m_HPBar.gameObject.SetActive(false);
+            m_Pool = new ObjectPool<HPBarPoolItem>(
+                actionOnGet: OnBarGet,
+                actionOnRelease: OnBarRelease,
+                actionInit: OnBarInit,
+                preCreateCount: 0);
         }
     }
 
     void Update()
     {
-        RefreshHpBarsFromBattle();
-        UpdateHpBarScreenPositions();
+        if (HasActorListChanged())
+        {
+            RefreshHpBarsFromBattle();
+        }
+
+        UpdateHpBarScreenPositionsAndFills();
+    }
+
+    bool HasActorListChanged()
+    {
+        BattleMgr battle = BattleMgr.Instance;
+        if (battle == null)
+        {
+            return m_CachedActorRefs.Count > 0;
+        }
+
+        IReadOnlyList<ActorBase> actors = battle.actorList;
+        if (actors.Count != m_CachedActorRefs.Count)
+        {
+            return true;
+        }
+
+        for (int i = 0; i < actors.Count; i++)
+        {
+            if (actors[i] != m_CachedActorRefs[i])
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    void RebuildActorCache()
+    {
+        m_CachedActorRefs.Clear();
+        BattleMgr battle = BattleMgr.Instance;
+        if (battle == null)
+        {
+            return;
+        }
+
+        foreach (ActorBase a in battle.actorList)
+        {
+            m_CachedActorRefs.Add(a);
+        }
+    }
+
+    void OnBarInit(HPBarPoolItem item)
+    {
+        GameObject instance = Instantiate(m_HPBar.gameObject, m_HPBar.parent);
+        instance.SetActive(false);
+        item.Transform = instance.transform;
+        item.HpPlayerImage = FindChildRecursive(item.Transform, HPPlayerChildName)?.GetComponent<Image>();
+        item.HpEnemyImage = FindChildRecursive(item.Transform, HPEnemyChildName)?.GetComponent<Image>();
+        m_AllPooledItemsForDestroy.Add(item);
+    }
+
+    static void OnBarGet(HPBarPoolItem item)
+    {
+        if (item.Transform != null)
+        {
+            item.Transform.gameObject.SetActive(true);
+        }
+    }
+
+    static void OnBarRelease(HPBarPoolItem item)
+    {
+        if (item.Transform != null)
+        {
+            item.Transform.gameObject.SetActive(false);
+        }
     }
 
     /// <summary>
-    /// 将每条血条对应的角色世界坐标转为屏幕坐标，并设置到 UI RectTransform（需在 Canvas 下）。
+    /// 将每条血条对应的角色世界坐标转为屏幕坐标，并设置到 UI RectTransform（需在 Canvas 下）；并同步血量填充。
     /// </summary>
-    void UpdateHpBarScreenPositions()
+    void UpdateHpBarScreenPositionsAndFills()
     {
         if (m_HPBar == null || m_HPBarInstances.Count == 0)
         {
@@ -66,7 +153,7 @@ public class HPBarMgr : MonoBehaviour
         Canvas canvas = m_Canvas;
         if (canvas == null)
         {
-            canvas = m_HPBarInstances[0].GetComponentInParent<Canvas>();
+            canvas = m_HPBarInstances[0].Transform.GetComponentInParent<Canvas>();
         }
 
         if (canvas == null && m_HPBar != null)
@@ -94,13 +181,13 @@ public class HPBarMgr : MonoBehaviour
 
         for (int i = 0; i < n; i++)
         {
-            Transform inst = m_HPBarInstances[i];
-            if (inst == null)
+            HPBarPoolItem poolItem = m_HPBarInstances[i];
+            if (poolItem == null || poolItem.Transform == null)
             {
                 continue;
             }
 
-            var barRt = inst.GetComponent<RectTransform>();
+            var barRt = poolItem.Transform.GetComponent<RectTransform>();
             if (barRt == null)
             {
                 continue;
@@ -111,6 +198,8 @@ public class HPBarMgr : MonoBehaviour
             {
                 continue;
             }
+
+            UpdateBarHpFill(poolItem, actor);
 
             Vector3 worldPos = actor.Position + m_WorldOffset;
             Vector3 screenPoint = worldCam.WorldToScreenPoint(worldPos);
@@ -135,7 +224,7 @@ public class HPBarMgr : MonoBehaviour
     }
 
     /// <summary>
-    /// 读取 <see cref="BattleMgr.actorList"/>，使血条实例数量与角色一致；
+    /// 读取 <see cref="BattleMgr.actorList"/>，使血条实例数量与角色一致；池化复用而非 Destroy。
     /// 每个实例下名为 HPPlayer / HPEnemy 的子物体按 <see cref="ActorType"/> 显示或隐藏（NPC 时两者皆隐藏）。
     /// </summary>
     public void RefreshHpBarsFromBattle()
@@ -146,10 +235,20 @@ public class HPBarMgr : MonoBehaviour
             return;
         }
 
+        if (m_Pool == null)
+        {
+            m_Pool = new ObjectPool<HPBarPoolItem>(
+                actionOnGet: OnBarGet,
+                actionOnRelease: OnBarRelease,
+                actionInit: OnBarInit,
+                preCreateCount: 0);
+        }
+
         BattleMgr battle = BattleMgr.Instance;
         if (battle == null)
         {
             ClearSpawnedBars();
+            RebuildActorCache();
             return;
         }
 
@@ -159,50 +258,67 @@ public class HPBarMgr : MonoBehaviour
         while (m_HPBarInstances.Count > need)
         {
             int last = m_HPBarInstances.Count - 1;
-            Transform remove = m_HPBarInstances[last];
+            HPBarPoolItem remove = m_HPBarInstances[last];
             m_HPBarInstances.RemoveAt(last);
             if (remove != null)
             {
-                Destroy(remove.gameObject);
+                m_Pool.Release(remove);
             }
         }
 
-        Transform parent = m_HPBar.parent;
         while (m_HPBarInstances.Count < need)
         {
-            GameObject instance = Instantiate(m_HPBar.gameObject, parent);
-            instance.SetActive(true);
-            m_HPBarInstances.Add(instance.transform);
+            m_HPBarInstances.Add(m_Pool.Get());
         }
 
         for (int i = 0; i < need; i++)
         {
             ApplyActorTypeToBar(m_HPBarInstances[i], actors[i]);
         }
+
+        RebuildActorCache();
     }
 
-    void ApplyActorTypeToBar(Transform barRoot, ActorBase actor)
+    void ApplyActorTypeToBar(HPBarPoolItem item, ActorBase actor)
     {
-        if (actor == null || barRoot == null)
+        if (actor == null || item == null || item.Transform == null)
         {
             return;
         }
 
-        Transform hpPlayer = FindChildRecursive(barRoot, HPPlayerChildName);
-        Transform hpEnemy = FindChildRecursive(barRoot, HPEnemyChildName);
-
         ActorType type = actor.m_ActorType;
 
-        if (hpPlayer != null)
+        if (item.HpPlayerImage != null)
         {
-            hpPlayer.gameObject.SetActive(type == ActorType.Player);
-            hpPlayer.GetComponent<Image>().fillAmount = actor.m_PropSet[PropType.HP_CUR] / (float)actor.m_PropSet[PropType.HP_MAX];
+            item.HpPlayerImage.gameObject.SetActive(type == ActorType.Player);
         }
 
-        if (hpEnemy != null)
+        if (item.HpEnemyImage != null)
         {
-            hpEnemy.gameObject.SetActive(type == ActorType.Monster);
-            hpEnemy.GetComponent<Image>().fillAmount = actor.m_PropSet[PropType.HP_CUR] / (float)actor.m_PropSet[PropType.HP_MAX];
+            item.HpEnemyImage.gameObject.SetActive(type == ActorType.Monster);
+        }
+
+        UpdateBarHpFill(item, actor);
+    }
+
+    static void UpdateBarHpFill(HPBarPoolItem item, ActorBase actor)
+    {
+        if (actor == null || item == null)
+        {
+            return;
+        }
+
+        float max = (float)actor.m_PropSet[PropType.HP_MAX];
+        float fill = max > 0f ? actor.m_PropSet[PropType.HP_CUR] / max : 0f;
+
+        if (item.HpPlayerImage != null)
+        {
+            item.HpPlayerImage.fillAmount = fill;
+        }
+
+        if (item.HpEnemyImage != null)
+        {
+            item.HpEnemyImage.fillAmount = fill;
         }
     }
 
@@ -221,11 +337,18 @@ public class HPBarMgr : MonoBehaviour
 
     void ClearSpawnedBars()
     {
+        if (m_Pool == null)
+        {
+            m_HPBarInstances.Clear();
+            return;
+        }
+
         for (int i = 0; i < m_HPBarInstances.Count; i++)
         {
-            if (m_HPBarInstances[i] != null)
+            HPBarPoolItem item = m_HPBarInstances[i];
+            if (item != null)
             {
-                Destroy(m_HPBarInstances[i].gameObject);
+                m_Pool.Release(item);
             }
         }
 
@@ -235,5 +358,17 @@ public class HPBarMgr : MonoBehaviour
     void OnDestroy()
     {
         ClearSpawnedBars();
+        m_Pool?.Clear();
+
+        for (int i = 0; i < m_AllPooledItemsForDestroy.Count; i++)
+        {
+            HPBarPoolItem item = m_AllPooledItemsForDestroy[i];
+            if (item != null && item.Transform != null)
+            {
+                Destroy(item.Transform.gameObject);
+            }
+        }
+
+        m_AllPooledItemsForDestroy.Clear();
     }
 }
