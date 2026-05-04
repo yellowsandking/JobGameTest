@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 /// <summary>
 /// 根据 <see cref="BattleMgr"/> 中的角色列表实例化血条模板，并按类型切换 HPPlayer / HPEnemy 子节点显示。
-/// 血条实例通过 <see cref="ObjectPool{T}"/> 复用；仅在 <see cref="BattleMgr.actorList"/> 成员或顺序变化时重建条数与类型显示。
+/// 血条实例通过 <see cref="ObjectPool{T}"/> 复用；仅在 <see cref="BattleMgr.actorListRevision"/> 变化时重建条数与类型显示。
 /// </summary>
 public class HPBarMgr : MonoBehaviour
 {
@@ -34,8 +34,10 @@ public class HPBarMgr : MonoBehaviour
     Vector3 m_WorldOffset = new Vector3(0f, 3f, 0f);
 
     readonly List<HPBarPoolItem> m_HPBarInstances = new List<HPBarPoolItem>();
-    readonly List<ActorBase> m_CachedActorRefs = new List<ActorBase>();
     readonly List<HPBarPoolItem> m_AllPooledItemsForDestroy = new List<HPBarPoolItem>();
+
+    /// <summary>上次已同步的 <see cref="BattleMgr.actorListRevision"/>；-1 表示尚未与有效战斗同步（含战斗未就绪）。</summary>
+    int m_LastSyncedActorListRevision = -1;
 
     ObjectPool<HPBarPoolItem> m_Pool;
 
@@ -48,12 +50,16 @@ public class HPBarMgr : MonoBehaviour
                 actionOnGet: OnBarGet,
                 actionOnRelease: OnBarRelease,
                 actionInit: OnBarInit,
-                preCreateCount: 0);
+                preCreateCount: 5);
         }
     }
 
     void Update()
     {
+        if (!BattleMgr.Instance.m_IsInit)
+        {
+            return;
+        }
         if (HasActorListChanged())
         {
             RefreshHpBarsFromBattle();
@@ -67,39 +73,16 @@ public class HPBarMgr : MonoBehaviour
         BattleMgr battle = BattleMgr.Instance;
         if (battle == null)
         {
-            return m_CachedActorRefs.Count > 0;
+            return m_LastSyncedActorListRevision != -1;
         }
 
-        IReadOnlyList<ActorBase> actors = battle.actorList;
-        if (actors.Count != m_CachedActorRefs.Count)
-        {
-            return true;
-        }
-
-        for (int i = 0; i < actors.Count; i++)
-        {
-            if (actors[i] != m_CachedActorRefs[i])
-            {
-                return true;
-            }
-        }
-
-        return false;
+        return battle.actorListRevision != m_LastSyncedActorListRevision;
     }
 
-    void RebuildActorCache()
+    void SyncActorListRevision()
     {
-        m_CachedActorRefs.Clear();
         BattleMgr battle = BattleMgr.Instance;
-        if (battle == null)
-        {
-            return;
-        }
-
-        foreach (ActorBase a in battle.actorList)
-        {
-            m_CachedActorRefs.Add(a);
-        }
+        m_LastSyncedActorListRevision = battle != null ? battle.actorListRevision : -1;
     }
 
     void OnBarInit(HPBarPoolItem item)
@@ -235,20 +218,11 @@ public class HPBarMgr : MonoBehaviour
             return;
         }
 
-        if (m_Pool == null)
-        {
-            m_Pool = new ObjectPool<HPBarPoolItem>(
-                actionOnGet: OnBarGet,
-                actionOnRelease: OnBarRelease,
-                actionInit: OnBarInit,
-                preCreateCount: 0);
-        }
-
         BattleMgr battle = BattleMgr.Instance;
         if (battle == null)
         {
             ClearSpawnedBars();
-            RebuildActorCache();
+            SyncActorListRevision();
             return;
         }
 
@@ -276,7 +250,7 @@ public class HPBarMgr : MonoBehaviour
             ApplyActorTypeToBar(m_HPBarInstances[i], actors[i]);
         }
 
-        RebuildActorCache();
+        SyncActorListRevision();
     }
 
     void ApplyActorTypeToBar(HPBarPoolItem item, ActorBase actor)

@@ -7,10 +7,22 @@ public class BattleMgr : GameLogicMgr<BattleMgr>
 {
     List<ActorBase> m_ActorList = new List<ActorBase>();
     PlayerActor m_PlayerActor = null;
+    int m_ActorListRevision;
+    public bool m_IsInit = false;
+
+    /// <summary>
+    /// 在 <see cref="m_ActorList"/> 增删或重排后递增；供 UI 等以 O(1) 判断列表是否相对上次变化。
+    /// </summary>
+    public int actorListRevision => m_ActorListRevision;
 
     public List<ActorBase> actorList
     {
         get { return m_ActorList; }
+    }
+
+    void BumpActorListRevision()
+    {
+        m_ActorListRevision++;
     }
 
     public PlayerActor mainPlayer
@@ -23,6 +35,7 @@ public class BattleMgr : GameLogicMgr<BattleMgr>
         Debug.Log("BattleMgr init");
         CreateMainPlayer();
         CreateEnemy();
+        m_IsInit = true;
         return UniTask.CompletedTask;
     }
 
@@ -30,6 +43,7 @@ public class BattleMgr : GameLogicMgr<BattleMgr>
     {
         m_PlayerActor = ActorSpawn.SpawnPlayer(Vector3.zero, "Player");
         m_ActorList.Add(m_PlayerActor);
+        BumpActorListRevision();
     }
 
     void CreateEnemy()
@@ -38,6 +52,7 @@ public class BattleMgr : GameLogicMgr<BattleMgr>
         {
             MonsterActor enemy = ActorSpawn.SpawnEnemy(new Vector3(5, 0, 5 * i), "Enemy");
             m_ActorList.Add(enemy);
+            BumpActorListRevision();
         }
     }
 
@@ -50,6 +65,7 @@ public class BattleMgr : GameLogicMgr<BattleMgr>
                 if (monster.m_CanRecycle)
                 {
                     m_ActorList.RemoveAt(i);
+                    BumpActorListRevision();
                     ActorSpawn.Release(monster);
                 }
             }

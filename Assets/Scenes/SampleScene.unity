@@ -278,10 +278,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 2110852620297983343, guid: fa5157819c87cb847b7681666104d0fd, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1574428254}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fa5157819c87cb847b7681666104d0fd, type: 3}
 --- !u!1 &705507993
 GameObject:
@@ -572,32 +569,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1574428252 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2110852620297983343, guid: fa5157819c87cb847b7681666104d0fd, type: 3}
-  m_PrefabInstance: {fileID: 486722185}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1574428254
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1574428252}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a9b5a4ad9b25c84d81e4033a8f4986a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_HPBar: {fileID: 2022628108}
-  m_WorldCamera: {fileID: 0}
-  m_Canvas: {fileID: 0}
-  m_WorldOffset: {x: 0, y: 2, z: 0}
---- !u!224 &2022628108 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 6788486494444090667, guid: fa5157819c87cb847b7681666104d0fd, type: 3}
-  m_PrefabInstance: {fileID: 486722185}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
