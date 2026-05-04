@@ -66,7 +66,7 @@ public class CameraMgr : GameLogicMgr<CameraMgr>
 
     public override UniTask OnInit()
     {
-        Debug.Log("CameraMgr init");
+        //Debug.Log("CameraMgr init");
         m_Main_Camera = Camera.main;
         LoadCameraAsset();
         return UniTask.CompletedTask;

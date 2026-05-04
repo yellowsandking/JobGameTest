@@ -33,7 +33,7 @@ public class BattleMgr : GameLogicMgr<BattleMgr>
 
     public override UniTask OnInit()
     {
-        Debug.Log("BattleMgr init");
+        //Debug.Log("BattleMgr init");
         CreateMainPlayer(Vector3.zero);
         CreateEnemy();
         m_IsInit = true;

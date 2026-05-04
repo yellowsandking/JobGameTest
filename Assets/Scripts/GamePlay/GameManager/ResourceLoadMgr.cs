@@ -37,7 +37,7 @@ public class ResourceLoadMgr : GameLogicMgr<ResourceLoadMgr>
 
     public override async UniTask OnInit()
     {
-        Debug.Log("ResourceLoadMgr init");
+        //Debug.Log("ResourceLoadMgr init");
         m_GameAsset = new GameObject("GameAsset");
         m_GameObjectPool = new GameObject("GameObjectPool");
         m_GameEffectLayer = new GameObject("GameEffectLayer");

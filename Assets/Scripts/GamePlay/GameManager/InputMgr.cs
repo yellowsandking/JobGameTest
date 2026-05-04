@@ -13,7 +13,7 @@ public class InputMgr : GameLogicMgr<InputMgr>
 
     public override UniTask OnInit()
     {
-        Debug.Log("InputMgr init");
+        //Debug.Log("InputMgr init");
         return UniTask.CompletedTask;
     }
 
