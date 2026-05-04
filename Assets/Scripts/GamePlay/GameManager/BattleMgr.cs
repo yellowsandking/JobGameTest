@@ -6,7 +6,6 @@ using Cysharp.Threading.Tasks;
 /// <summary>
 /// <see cref="BattleMgr"/> 的 <c>actorList</c> 增删或重排后由 <see cref="EventBus"/> 发布。
 /// </summary>
-public readonly struct BattleActorListChangedEvent { }
 
 public class BattleMgr : GameLogicMgr<BattleMgr>
 {
