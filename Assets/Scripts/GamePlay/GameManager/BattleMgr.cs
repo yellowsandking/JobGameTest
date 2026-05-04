@@ -3,27 +3,26 @@ using System.Collections.Generic;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 
+/// <summary>
+/// <see cref="BattleMgr"/> 的 <c>actorList</c> 增删或重排后由 <see cref="EventBus"/> 发布。
+/// </summary>
+public readonly struct BattleActorListChangedEvent { }
+
 public class BattleMgr : GameLogicMgr<BattleMgr>
 {
     List<ActorBase> m_ActorList = new List<ActorBase>();
     PlayerActor m_PlayerActor = null;
-    int m_ActorListRevision;
     public bool m_IsInit = false;
     Vector3 m_PlayerRelivePos = Vector3.zero;
-
-    /// <summary>
-    /// 在 <see cref="m_ActorList"/> 增删或重排后递增；供 UI 等以 O(1) 判断列表是否相对上次变化。
-    /// </summary>
-    public int actorListRevision => m_ActorListRevision;
 
     public List<ActorBase> actorList
     {
         get { return m_ActorList; }
     }
 
-    void BumpActorListRevision()
+    void NotifyActorListChanged()
     {
-        m_ActorListRevision++;
+        EventBus.Publish(new BattleActorListChangedEvent());
     }
 
     public PlayerActor mainPlayer
@@ -44,7 +43,7 @@ public class BattleMgr : GameLogicMgr<BattleMgr>
     {
         m_PlayerActor = ActorSpawn.SpawnPlayer(pos, "Player");
         m_ActorList.Add(m_PlayerActor);
-        BumpActorListRevision();
+        NotifyActorListChanged();
     }
 
     void CreateEnemy()
@@ -56,7 +55,7 @@ public class BattleMgr : GameLogicMgr<BattleMgr>
             Vector2 spawnPos = UnityEngine.Random.insideUnitCircle * radius;
             MonsterActor enemy = ActorSpawn.SpawnEnemy(new Vector3(spawnPos.x, 0, spawnPos.y) + m_PlayerActor.Position, "Enemy");
             m_ActorList.Add(enemy);
-            BumpActorListRevision();
+            NotifyActorListChanged();
         }
     }
 
@@ -74,7 +73,7 @@ public class BattleMgr : GameLogicMgr<BattleMgr>
                         m_PlayerRelivePos = p.Position;
                     }
                     m_ActorList.RemoveAt(i);
-                    BumpActorListRevision();
+                    NotifyActorListChanged();
                     ActorSpawn.Release(actor);
                 }
             }
@@ -125,6 +124,6 @@ public class BattleMgr : GameLogicMgr<BattleMgr>
             }
         }
         m_ActorList.Clear();
-        BumpActorListRevision();
+        NotifyActorListChanged();
     }
 }

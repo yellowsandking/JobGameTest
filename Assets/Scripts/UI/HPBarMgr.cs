@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 /// <summary>
 /// 根据 <see cref="BattleMgr"/> 中的角色列表实例化血条模板，并按类型切换 HPPlayer / HPEnemy 子节点显示。
-/// 血条实例通过 <see cref="ObjectPool{T}"/> 复用；仅在 <see cref="BattleMgr.actorListRevision"/> 变化时重建条数与类型显示。
+/// 血条实例通过 <see cref="ObjectPool{T}"/> 复用；在收到 <see cref="BattleActorListChangedEvent"/> 时重建条数与类型显示。
 /// </summary>
 public class HPBarMgr : MonoBehaviour
 {
@@ -35,8 +35,8 @@ public class HPBarMgr : MonoBehaviour
 
     readonly List<HPBarPoolItem> m_HPBarInstances = new List<HPBarPoolItem>();
 
-    /// <summary>上次已同步的 <see cref="BattleMgr.actorListRevision"/>；-1 表示尚未与有效战斗同步（含战斗未就绪）。</summary>
-    int m_LastSyncedActorListRevision = -1;
+    /// <summary>为 true 时下一帧从 <see cref="BattleMgr.actorList"/> 重建血条；订阅事件后置位，首帧默认可靠同步。</summary>
+    bool m_ActorListDirty = true;
 
     ObjectPool<HPBarPoolItem> m_Pool;
 
@@ -54,35 +54,33 @@ public class HPBarMgr : MonoBehaviour
         }
     }
 
+    void OnEnable()
+    {
+        EventBus.Subscribe<BattleActorListChangedEvent>(OnBattleActorListChanged, this);
+    }
+
+    void OnDisable()
+    {
+        EventBus.UnsubscribeAll(this);
+    }
+
+    void OnBattleActorListChanged(BattleActorListChangedEvent e)
+    {
+        m_ActorListDirty = true;
+    }
+
     void Update()
     {
         if (!BattleMgr.Instance.m_IsInit)
         {
             return;
         }
-        if (HasActorListChanged())
+        if (m_ActorListDirty)
         {
             RefreshHpBarsFromBattle();
         }
 
         UpdateHpBarScreenPositionsAndFills();
-    }
-
-    bool HasActorListChanged()
-    {
-        BattleMgr battle = BattleMgr.Instance;
-        if (battle == null)
-        {
-            return m_LastSyncedActorListRevision != -1;
-        }
-
-        return battle.actorListRevision != m_LastSyncedActorListRevision;
-    }
-
-    void SyncActorListRevision()
-    {
-        BattleMgr battle = BattleMgr.Instance;
-        m_LastSyncedActorListRevision = battle != null ? battle.actorListRevision : -1;
     }
 
     void OnBarInit(HPBarPoolItem item)
@@ -232,7 +230,7 @@ public class HPBarMgr : MonoBehaviour
         if (battle == null)
         {
             ClearSpawnedBars();
-            SyncActorListRevision();
+            m_ActorListDirty = false;
             return;
         }
 
@@ -260,7 +258,7 @@ public class HPBarMgr : MonoBehaviour
             ApplyActorTypeToBar(m_HPBarInstances[i], actors[i]);
         }
 
-        SyncActorListRevision();
+        m_ActorListDirty = false;
     }
 
     void ApplyActorTypeToBar(HPBarPoolItem item, ActorBase actor)
