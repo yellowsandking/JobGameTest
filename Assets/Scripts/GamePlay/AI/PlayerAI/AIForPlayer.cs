@@ -18,7 +18,7 @@ public class AIForPlayer : IAI
 
     public void Init(ActorBase actor)
     {
-        if (actor is PlayerActor)
+        if ((actor is PlayerActor) == false)
         {
             return;
         }
@@ -72,26 +72,24 @@ public class AIForPlayer : IAI
 
     }
 
-    /// <summary>
-    /// 攻击玩家
-    /// </summary>
-    /// <returns></returns>
-    public bool AttackPlayer(float deltaTime)
+    public bool AttackEnemy(float deltaTime)
     {
-        PlayerActor player = BattleMgr.Instance.mainPlayer;
-        if (!AI.IsPlayerAlive(player))
+        for (int i = 0; i < BattleMgr.Instance.actorList.Count; ++i)
         {
-            return false;
+            ActorBase actor = BattleMgr.Instance.actorList[i];
+            if (m_Actor.m_ActorType == actor.m_ActorType)
+            {
+                continue;
+            }
+            float distance = Vector3.Distance(actor.Position, m_Actor.Position);
+            if (distance > 2.2f)
+            {
+                continue;
+            }
+            return true;
         }
 
-        // 判断是否在指定距离内
-        float distance = Vector3.Distance(player.Position, m_Actor.Position);
-        if (distance > 3)
-        {
-            return false;
-        }
-
-        return true;
+        return false;
     }
 
     public bool Idle()
@@ -101,6 +99,16 @@ public class AIForPlayer : IAI
 
     private void ChangeState(AIPlayerBehavoirType eState, float fKeepTime = 0f)
     {
+        if (m_CurrentBehaviorType == eState)
+        {
+            return;
+        }
+        switch (eState)
+        {
+            case AIPlayerBehavoirType.eAttack:
+                m_Actor.actorAnimState = ActorAnimState.Attack;
+                break;
+        }
         m_CurrentBehaviorType = eState;
         //m_fStateKeepTime = Time.realtimeSinceStartup + fKeepTime;
     }

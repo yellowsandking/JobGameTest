@@ -7,8 +7,10 @@ public class AI_AttackForPlayer : IAIBehavior
 {
     private AIForPlayer m_AI;
 
-    private float m_AddTime = 0;
-    private const float INTERVAL_TIME = 0.04f;
+    float ATTACK_DURATION = 1.2f;
+    float ATTACK_COOLDOWN = 0.2f;
+    float m_LastAttackTime = 0f;
+    float m_CurrentTime = 0;
 
     public AI_AttackForPlayer(AIForPlayer ai)
     {
@@ -22,14 +24,23 @@ public class AI_AttackForPlayer : IAIBehavior
 
     public bool Update(float deltTime)
     {
-        //m_AddTime += deltTime;
-        //if (m_AddTime < INTERVAL_TIME)
-        //{
-        //    return false;
-        //}
-        //m_AddTime = 0;
+        m_CurrentTime = Time.realtimeSinceStartup;
+        if (m_CurrentTime < m_LastAttackTime + ATTACK_DURATION)
+        {
+            return true;
+        }
 
-        bool result = m_AI.AttackPlayer(deltTime);
+        // 2. 冷却中（攻击结束后的CD）
+        if (m_CurrentTime < m_LastAttackTime + ATTACK_DURATION + ATTACK_COOLDOWN)
+        {
+            return false;
+        }
+
+        bool result = m_AI.AttackEnemy(deltTime);
+        if (result)
+        {
+            m_LastAttackTime = Time.realtimeSinceStartup;
+        }
         return result;
     }
 }

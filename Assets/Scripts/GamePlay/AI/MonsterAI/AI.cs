@@ -34,7 +34,7 @@ public class AI : IAI
 
     public void Init(ActorBase actor)
     {
-        if (actor is PlayerActor)
+        if ((actor is MonsterActor) == false)
         {
             return;
         }
@@ -123,7 +123,7 @@ public class AI : IAI
         float moveSpeed = m_Actor.m_PropSet[PropType.MOVE_SPEED];
         Vector3 dir = separation.normalized;
         float pushMag = separation.magnitude;
-        float step = Mathf.Min(pushMag * moveSpeed * CrowdSeparationSpeedFactor * deltaTime, moveSpeed * deltaTime * 2.5f);
+        float step = Mathf.Min(pushMag * moveSpeed * CrowdSeparationSpeedFactor * deltaTime, moveSpeed * deltaTime);
         m_Actor.Position += dir * step;
     }
 

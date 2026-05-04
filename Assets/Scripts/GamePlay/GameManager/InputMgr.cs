@@ -17,14 +17,14 @@ public class InputMgr : GameLogicMgr<InputMgr>
         return UniTask.CompletedTask;
     }
 
-    public override void OnUpdate()
-    {
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            var player = BattleMgr.Instance.mainPlayer;
-            player.TriggerAttackPresentation();
-            player.SyncPresentation();
-        }
-    }
+    //public override void OnUpdate()
+    //{
+    //    if (Input.GetKeyDown(KeyCode.P))
+    //    {
+    //        var player = BattleMgr.Instance.mainPlayer;
+    //        player.TriggerAttackPresentation();
+    //        player.SyncPresentation();
+    //    }
+    //}
 }
 

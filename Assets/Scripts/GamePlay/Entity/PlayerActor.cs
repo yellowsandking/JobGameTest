@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class PlayerActor : ActorBase
 {
+    IAI m_AI;
     int m_Run = 1;
 
     protected override void ResetPresenterState()
@@ -17,6 +18,8 @@ public class PlayerActor : ActorBase
     public override void OnInit()
     {
         m_ActorType = ActorType.Player;
+        m_AI = new AIForPlayer();
+        m_AI.Init(this);
         Model.PropSet[PropType.HP_MAX] = 100;
         Model.PropSet[PropType.HP_CUR] = 100;
         Model.PropSet[PropType.MOVE_SPEED] = 7;
@@ -27,6 +30,7 @@ public class PlayerActor : ActorBase
     public override void Update()
     {
         SkillComponent.Update();
+        m_AI.LogicUpdate();
         Vector2 moveDir = InputMgr.Instance.moveDir;
         if (moveDir.sqrMagnitude <= 0)
         {

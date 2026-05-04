@@ -21,7 +21,7 @@ public class MonsterActor : ActorBase
         Model.PropSet[PropType.HP_CUR] = 100;
         Model.PropSet[PropType.MOVE_SPEED] = 5;
         Model.PropSet[PropType.ROTATE_SPEED] = 500;
-        Model.PropSet[PropType.ATT] = 30;
+        Model.PropSet[PropType.ATT] = 5;
     }
 
     public override void Update()
