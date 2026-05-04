@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using System;
 using UnityEngine;
 
@@ -9,6 +10,8 @@ public abstract class ActorBase
     bool m_Disposed;
     ActorModel m_Model;
     ActorBaseView m_View;
+    public bool m_IsDead = false;
+    public bool m_CanRecycle = false;
 
     /// <summary>逻辑模型（位置、属性、展示意图等）。</summary>
     public ActorModel Model => m_Model;
@@ -67,7 +70,8 @@ public abstract class ActorBase
         {
             throw new ArgumentNullException(nameof(view));
         }
-
+        m_IsDead = false;
+        m_CanRecycle = false;
         m_Disposed = false;
         ResetPresenterState();
 
@@ -144,5 +148,29 @@ public abstract class ActorBase
 
     public virtual void OnDamage(ActorBase from, float damage)
     {
+        Model.PropSet[PropType.HP_CUR] -= damage;
+        if (Model.PropSet[PropType.HP_CUR] <= 0)
+        {
+            Model.PropSet[PropType.HP_CUR] = 0;
+            OnDead();
+        }
+    }
+
+    void OnDead()
+    {
+        if (m_IsDead)
+        {
+            return;
+        }
+        m_IsDead = true;
+        Model.AnimState = ActorAnimState.Dead;
+        SyncPresentation();
+        WaitTimeToRecycle().Forget();
+    }
+
+    async UniTaskVoid WaitTimeToRecycle()
+    {
+        await View.WaitForDeadAnim();
+        m_CanRecycle = true;
     }
 }

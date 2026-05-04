@@ -5,8 +5,7 @@ using UnityEngine;
 public class MonsterActor : ActorBase
 {
     IAI m_AI;
-    public bool m_IsDead = false;
-    public bool m_CanRecycle = false;
+
 
     protected override void ReturnSelfToPool()
     {
@@ -22,9 +21,7 @@ public class MonsterActor : ActorBase
         Model.PropSet[PropType.HP_CUR] = 100;
         Model.PropSet[PropType.MOVE_SPEED] = 5;
         Model.PropSet[PropType.ROTATE_SPEED] = 500;
-        Model.PropSet[PropType.ATT] = 10;
-        m_IsDead = false;
-        m_CanRecycle = false;
+        Model.PropSet[PropType.ATT] = 30;
     }
 
     public override void Update()
@@ -40,33 +37,5 @@ public class MonsterActor : ActorBase
         }
 
         SyncPresentation();
-    }
-
-    public override void OnDamage(ActorBase from, float damage)
-    {
-        Model.PropSet[PropType.HP_CUR] -= damage;
-        if (Model.PropSet[PropType.HP_CUR] <= 0)
-        {
-            Model.PropSet[PropType.HP_CUR] = 0;
-            OnMonsterDead();
-        }
-    }
-
-    void OnMonsterDead()
-    {
-        if (m_IsDead)
-        {
-            return;
-        }
-        m_IsDead = true;
-        Model.AnimState = ActorAnimState.Dead;
-        SyncPresentation();
-        WaitTimeToRecycle().Forget();
-    }
-
-    async UniTaskVoid WaitTimeToRecycle()
-    {
-        await (View as EnemyView).WaitForDeadAnim();
-        m_CanRecycle = true;
     }
 }

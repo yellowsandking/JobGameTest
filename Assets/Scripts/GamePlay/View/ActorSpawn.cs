@@ -85,4 +85,19 @@ public static class ActorSpawn
     {
         actor?.Dispose();
     }
+
+    // 以actorbase为参数的release方法
+    public static void Release(ActorBase actor)
+    {
+        actor?.Dispose();
+        switch (actor)
+        {
+            case PlayerActor player:
+                Release(player);
+                break;
+            case MonsterActor monster:
+                Release(monster);
+                break;
+        }
+    }
 }

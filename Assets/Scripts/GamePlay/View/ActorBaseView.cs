@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using System;
 using UnityEngine;
 
@@ -140,5 +141,10 @@ public abstract class ActorBaseView : MonoBehaviour, IActorView
     {
         ClearPresenter();
         m_PoolObject = null;
+    }
+
+    public async UniTask WaitForDeadAnim()
+    {
+        await UniTask.Delay(4000);
     }
 }

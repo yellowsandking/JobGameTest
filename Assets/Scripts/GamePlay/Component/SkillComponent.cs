@@ -31,14 +31,12 @@ public class SkillComponent
     }
 
     /// <summary>
-    /// ???¦Ç?¦¶??????????60????????§ß??????2????angle??30??
     /// </summary>
     /// <param name="angle"></param>
     /// <returns></returns>
     public void GetEnemyListInSector(float angle = 30)
     {
         m_EnemyList.Clear();
-        // ??????????angle????????????
         for (int i = 0; i < BattleMgr.Instance.actorList.Count; ++i)
         {
             ActorBase actor = BattleMgr.Instance.actorList[i];
@@ -61,7 +59,6 @@ public class SkillComponent
 
     public void Update()
     {
-        // ?????¦Ç?¦¶
         int radius = 3;
         int angle = 60;
 
@@ -69,11 +66,9 @@ public class SkillComponent
         Vector3 leftDir = Quaternion.Euler(0, -angle / 2, 0) * forward;
         Vector3 rightDir = Quaternion.Euler(0, angle / 2, 0) * forward;
 
-        // ????????
         Debug.DrawLine(m_Actor.Position, m_Actor.Position + leftDir * radius, Color.green);
         Debug.DrawLine(m_Actor.Position, m_Actor.Position + rightDir * radius, Color.green);
 
-        // ?????????????????
         int segments = 10;
         Vector3 prevPoint = m_Actor.Position + leftDir * radius;
 
