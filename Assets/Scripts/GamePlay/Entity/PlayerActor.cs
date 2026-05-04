@@ -23,9 +23,11 @@ public class PlayerActor : ActorBase
         m_AI.Init(this);
         Model.PropSet[PropType.HP_MAX] = 100;
         Model.PropSet[PropType.HP_CUR] = 100;
-        Model.PropSet[PropType.MOVE_SPEED] = 7;
+        Model.PropSet[PropType.MOVE_SPEED] = 3;
         Model.PropSet[PropType.ROTATE_SPEED] = 500;
         Model.PropSet[PropType.ATT] = 40;
+        Model.AnimState = ActorAnimState.Idle;
+        SyncPresentation();
     }
 
     public override void Update()
@@ -50,18 +52,18 @@ public class PlayerActor : ActorBase
 
     void SetPlayerAnimState()
     {
-        if (m_AI.currentBehaviorType != (int)AIPlayerBehavoirType.eAttack)
+        if (m_AI.currentBehaviorType == (int)AIPlayerBehavoirType.eAttack)
         {
-            if (m_Run == 0)
-            {
-                Model.AnimState = ActorAnimState.Idle;
-            }
-            else
-            {
-                Model.AnimState = ActorAnimState.Run;
-            }
+            SyncPresentation();
         }
-
+        if (m_Run == 0)
+        {
+            Model.AnimState = ActorAnimState.Idle;
+        }
+        else
+        {
+            Model.AnimState = ActorAnimState.Run;
+        }
         SyncPresentation();
     }
 }

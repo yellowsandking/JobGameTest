@@ -19,7 +19,7 @@ public class MonsterActor : ActorBase
         m_AI.Init(this);
         Model.PropSet[PropType.HP_MAX] = 100;
         Model.PropSet[PropType.HP_CUR] = 100;
-        Model.PropSet[PropType.MOVE_SPEED] = 5;
+        Model.PropSet[PropType.MOVE_SPEED] = 2;
         Model.PropSet[PropType.ROTATE_SPEED] = 500;
         Model.PropSet[PropType.ATT] = 5;
     }
