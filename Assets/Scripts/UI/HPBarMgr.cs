@@ -34,7 +34,6 @@ public class HPBarMgr : MonoBehaviour
     Vector3 m_WorldOffset = new Vector3(0f, 3f, 0f);
 
     readonly List<HPBarPoolItem> m_HPBarInstances = new List<HPBarPoolItem>();
-    readonly List<HPBarPoolItem> m_AllPooledItemsForDestroy = new List<HPBarPoolItem>();
 
     /// <summary>上次已同步的 <see cref="BattleMgr.actorListRevision"/>；-1 表示尚未与有效战斗同步（含战斗未就绪）。</summary>
     int m_LastSyncedActorListRevision = -1;
@@ -50,6 +49,7 @@ public class HPBarMgr : MonoBehaviour
                 actionOnGet: OnBarGet,
                 actionOnRelease: OnBarRelease,
                 actionInit: OnBarInit,
+                actionOnClear: OnPoolClearHpBarItem,
                 preCreateCount: 5);
         }
     }
@@ -92,7 +92,16 @@ public class HPBarMgr : MonoBehaviour
         item.Transform = instance.transform;
         item.HpPlayerImage = FindChildRecursive(item.Transform, HPPlayerChildName)?.GetComponent<Image>();
         item.HpEnemyImage = FindChildRecursive(item.Transform, HPEnemyChildName)?.GetComponent<Image>();
-        m_AllPooledItemsForDestroy.Add(item);
+    }
+
+    static void OnPoolClearHpBarItem(HPBarPoolItem item)
+    {
+        if (item == null || item.Transform == null)
+        {
+            return;
+        }
+
+        Object.Destroy(item.Transform.gameObject);
     }
 
     static void OnBarGet(HPBarPoolItem item)
@@ -333,16 +342,5 @@ public class HPBarMgr : MonoBehaviour
     {
         ClearSpawnedBars();
         m_Pool?.Clear();
-
-        for (int i = 0; i < m_AllPooledItemsForDestroy.Count; i++)
-        {
-            HPBarPoolItem item = m_AllPooledItemsForDestroy[i];
-            if (item != null && item.Transform != null)
-            {
-                Destroy(item.Transform.gameObject);
-            }
-        }
-
-        m_AllPooledItemsForDestroy.Clear();
     }
 }

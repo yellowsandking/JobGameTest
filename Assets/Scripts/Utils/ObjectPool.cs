@@ -1,95 +1,126 @@
-锘縰sing System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+
 public class ObjectPool<T> where T : new()
 {
     private readonly Stack<T> m_Stack = new Stack<T>();
-    private readonly Run<T> m_ActionOnInit;
-    private readonly Run<T> m_ActionOnGet;
-    private readonly Run<T> m_ActionOnRelease;
+    private readonly List<T> m_AllAllocated = new List<T>();
+    private readonly HashSet<T> m_InPool = new HashSet<T>();
 
-    public int countAll { get; private set; }
-    public int countActive { get { return countAll - countInactive; } }
-    public int countInactive { get { return m_Stack.Count; } }
+    private readonly Action<T> m_ActionOnInit;
+    private readonly Action<T> m_ActionOnGet;
+    private readonly Action<T> m_ActionOnRelease;
+    private readonly Action<T> m_ActionOnClear;
 
-    public ObjectPool(Run<T> actionOnGet, Run<T> actionOnRelease, Run<T> actionInit = null, int preCreateCount = 0)
+    private bool m_IsCleared = false;
+
+    public int countAll => m_AllAllocated.Count;
+    public int countInactive => m_Stack.Count;
+    public int countActive => countAll - countInactive;
+
+    public IReadOnlyList<T> allAllocated => m_AllAllocated;
+
+    public ObjectPool(
+        Action<T> actionOnGet,
+        Action<T> actionOnRelease,
+        Action<T> actionInit = null,
+        Action<T> actionOnClear = null,
+        int preCreateCount = 0)
     {
         m_ActionOnGet = actionOnGet;
         m_ActionOnRelease = actionOnRelease;
         m_ActionOnInit = actionInit;
+        m_ActionOnClear = actionOnClear;
 
         WarnUp(preCreateCount);
     }
 
     public void WarnUp(int preCreateCount)
     {
+        if (m_IsCleared)
+        {
+            Debug.LogError("ObjectPool: 已 Clear，不能再 WarmUp！");
+            return;
+        }
+
         if (preCreateCount <= 0) return;
 
-        T t;
-        for (int i = 0, len = preCreateCount; i < preCreateCount; i++)
+        for (int i = 0; i < preCreateCount; i++)
         {
-            t = new T();
-            Release(t);
-            if (m_ActionOnInit != null)
-            {
-                m_ActionOnInit(t);
-            }
+            T t = new T();
+            m_AllAllocated.Add(t);
+
+            m_ActionOnInit?.Invoke(t); // 先初始化
+
+            m_Stack.Push(t);
+            m_InPool.Add(t);
         }
     }
 
     public T Get()
     {
+        if (m_IsCleared)
+        {
+            Debug.LogError("ObjectPool: 已 Clear，不能再 Get！");
+            return default;
+        }
+
         T element;
+
         if (m_Stack.Count == 0)
         {
             element = new T();
-            if (m_ActionOnInit != null)
-            {
-                m_ActionOnInit(element);
-            }
-            countAll++;
+            m_AllAllocated.Add(element);
+            m_ActionOnInit?.Invoke(element);
         }
         else
         {
             element = m_Stack.Pop();
+            m_InPool.Remove(element);
         }
-        if (m_ActionOnGet != null)
-            m_ActionOnGet(element);
+
+        m_ActionOnGet?.Invoke(element);
         return element;
     }
 
     public void Release(T element)
     {
-        if (m_Stack.Count > 0 && ReferenceEquals(m_Stack.Peek(), element))
+        if (m_IsCleared)
         {
-            Debug.LogError("Internal error. Trying to destroy object that is already released to pool.");
+            Debug.LogError("ObjectPool: 已 Clear，禁止 Release！");
             return;
         }
-        if (m_ActionOnRelease != null)
+
+        if (!m_InPool.Add(element))
         {
-            m_ActionOnRelease(element);
+            Debug.LogError("ObjectPool: 重复回收对象！");
+            return;
         }
+
+        m_ActionOnRelease?.Invoke(element);
         m_Stack.Push(element);
     }
 
     public void Clear()
     {
+        if (m_IsCleared)
+        {
+            return; // 防重复 Clear
+        }
+
+        m_IsCleared = true;
+
+        if (m_ActionOnClear != null)
+        {
+            for (int i = 0; i < m_AllAllocated.Count; i++)
+            {
+                m_ActionOnClear(m_AllAllocated[i]);
+            }
+        }
+
         m_Stack.Clear();
-    }
-}
-public static class ObjectPoolList<T>
-{
-    // Object pool to avoid allocations.
-    private static readonly ObjectPool<List<T>> s_ListPool = new ObjectPool<List<T>>(null, Clear);
-    static void Clear(List<T> l) { l.Clear(); }
-
-    public static List<T> Get()
-    {
-        return s_ListPool.Get();
-    }
-
-    public static void Release(List<T> toRelease)
-    {
-        s_ListPool.Release(toRelease);
+        m_AllAllocated.Clear();
+        m_InPool.Clear();
     }
 }
