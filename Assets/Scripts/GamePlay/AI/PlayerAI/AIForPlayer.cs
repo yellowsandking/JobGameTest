@@ -6,14 +6,11 @@ public class AIForPlayer : IAI
 {
     public IAIBehavior[] m_Behaviors = new IAIBehavior[(int)AIPlayerBehavoirType.eMax];
     AIPlayerBehavoirType m_CurrentBehaviorType = AIPlayerBehavoirType.eAttack;
-    float m_fAISwitchTime = 0.0f;
-    float m_RotateSpeed = 200;
-    float m_MoveSpeed = 5;
-    ActorBase m_Actor = null;
+    PlayerActor m_Actor = null;
 
-    public AIPlayerBehavoirType currentBehaviorType
+    public int currentBehaviorType
     {
-        get { return m_CurrentBehaviorType; }
+        get { return (int)m_CurrentBehaviorType; }
     }
 
     public void Init(ActorBase actor)
@@ -22,7 +19,7 @@ public class AIForPlayer : IAI
         {
             return;
         }
-        m_Actor = actor;
+        m_Actor = actor as PlayerActor;
 
         m_Behaviors[0] = new AI_AttackForPlayer(this);
     }
@@ -45,31 +42,11 @@ public class AIForPlayer : IAI
                 //Debug.LogError("AI type: " + behavior.aiType.ToString());
                 break;
             }
+            else
+            {
+                ChangeState(AIPlayerBehavoirType.eNone);
+            }
         }
-    }
-
-    public bool MoveToPlayer(float deltaTime)
-    {
-        PlayerActor player = BattleMgr.Instance.mainPlayer;
-        if (!AI.IsPlayerAlive(player))
-        {
-            return false;
-        }
-
-        Vector3 dir = player.Position - m_Actor.Position;
-        Quaternion targetLook = Quaternion.LookRotation(dir);
-        Quaternion qua = Quaternion.RotateTowards(m_Actor.Rotation, targetLook, m_RotateSpeed * Time.deltaTime);
-        m_Actor.Rotation = qua;
-
-        // 移动
-        float distance = Vector3.Distance(player.Position, m_Actor.Position);
-        if (distance > 2)
-        {
-            m_Actor.Position += m_Actor.Forward * m_MoveSpeed * deltaTime;
-        }
-
-        return true;
-
     }
 
     public bool AttackEnemy(float deltaTime)
@@ -92,7 +69,7 @@ public class AIForPlayer : IAI
         return false;
     }
 
-    public bool Idle()
+    public bool Idle(float deltTime)
     {
         return true;
     }
@@ -106,7 +83,7 @@ public class AIForPlayer : IAI
         switch (eState)
         {
             case AIPlayerBehavoirType.eAttack:
-                m_Actor.actorAnimState = ActorAnimState.Attack;
+                m_Actor.TriggerAttackPresentation();
                 break;
         }
         m_CurrentBehaviorType = eState;

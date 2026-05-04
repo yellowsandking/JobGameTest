@@ -14,16 +14,16 @@ public class AI : IAI
 
     public IAIBehavior[] m_Behaviors = new IAIBehavior[(int)AIBehavoirType.eMax];
     AIBehavoirType m_CurrentBehaviorType = AIBehavoirType.eIdle;
-    ActorBase m_Actor = null;
+    MonsterActor m_Actor = null;
 
     public ActorBase actor
     {
         get { return m_Actor; }
     }
 
-    public AIBehavoirType currentBehaviorType
+    public int currentBehaviorType
     {
-        get { return m_CurrentBehaviorType; }
+        get { return (int)m_CurrentBehaviorType; }
     }
 
     /// <summary>玩家是否存在且尚未死亡（可作追击/攻击目标）。</summary>
@@ -38,7 +38,7 @@ public class AI : IAI
         {
             return;
         }
-        m_Actor = actor;
+        m_Actor = actor as MonsterActor;
 
         m_Behaviors[0] = new AI_Attack(this);
         m_Behaviors[1] = new AI_Find_Player(this);

@@ -11,7 +11,8 @@ public enum AIBehavoirType
 
 public enum AIPlayerBehavoirType
 {
-    eAttack = 0,
+    eNone = 0,
+    eAttack = 1,
     eMax,
 }
 
@@ -20,8 +21,11 @@ public interface IAI
     void Init(ActorBase actor);
     void LogicUpdate();
     void Clear();
+    int currentBehaviorType
+    {
+        get;
+    }
 }
-
 public interface IAIBehavior
 {
     bool Update(float deltTime);

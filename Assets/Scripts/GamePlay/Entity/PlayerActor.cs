@@ -1,3 +1,4 @@
+using NaughtyAttributes.Test;
 using UnityEngine;
 
 public class PlayerActor : ActorBase
@@ -34,13 +35,8 @@ public class PlayerActor : ActorBase
         Vector2 moveDir = InputMgr.Instance.moveDir;
         if (moveDir.sqrMagnitude <= 0)
         {
-            if (m_Run > 0)
-            {
-                m_Run = 0;
-                Model.AnimState = ActorAnimState.Idle;
-                SyncPresentation();
-            }
-
+            m_Run = 0;
+            SetPlayerAnimState();
             return;
         }
 
@@ -49,7 +45,22 @@ public class PlayerActor : ActorBase
         Model.Rotation = Quaternion.LookRotation(velocity);
 
         m_Run = 1;
-        Model.AnimState = ActorAnimState.Run;
+        SetPlayerAnimState();
+    }
+
+    void SetPlayerAnimState()
+    {
+        if (m_AI.currentBehaviorType != (int)AIPlayerBehavoirType.eAttack)
+        {
+            if (m_Run == 0)
+            {
+                Model.AnimState = ActorAnimState.Idle;
+            }
+            else
+            {
+                Model.AnimState = ActorAnimState.Run;
+            }
+        }
 
         SyncPresentation();
     }

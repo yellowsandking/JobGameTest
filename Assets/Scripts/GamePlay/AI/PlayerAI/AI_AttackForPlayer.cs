@@ -7,8 +7,8 @@ public class AI_AttackForPlayer : IAIBehavior
 {
     private AIForPlayer m_AI;
 
-    float ATTACK_DURATION = 1.2f;
-    float ATTACK_COOLDOWN = 0.2f;
+    float ATTACK_DURATION = 1.13f;
+    float ATTACK_COOLDOWN = 0.1f;
     float m_LastAttackTime = 0f;
     float m_CurrentTime = 0;
 
