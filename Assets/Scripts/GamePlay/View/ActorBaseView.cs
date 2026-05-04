@@ -11,6 +11,7 @@ public abstract class ActorBaseView : MonoBehaviour, IActorView
     static readonly int SpeedID = Animator.StringToHash("Speed");
     static readonly int AttackID = Animator.StringToHash("Attack");
     static readonly int DeadID = Animator.StringToHash("Dead");
+    static readonly int UpperAttackID = Animator.StringToHash("UpperAttack");
 
     AddressablePoolObject m_PoolObject;
     Animator m_Animator;
@@ -110,7 +111,14 @@ public abstract class ActorBaseView : MonoBehaviour, IActorView
                 m_Animator.SetInteger(SpeedID, 1);
                 break;
             case ActorAnimState.Attack:
-                m_Animator.SetTrigger(AttackID);
+                if (this is PlayerView)
+                {
+                    m_Animator.SetTrigger(UpperAttackID);
+                }
+                else
+                {
+                    m_Animator.SetTrigger(AttackID);
+                }
                 break;
             case ActorAnimState.Dead:
                 m_Animator.SetTrigger(DeadID);
