@@ -51,6 +51,11 @@ public class AIForPlayer : IAI
     public bool MoveToPlayer(float deltaTime)
     {
         PlayerActor player = BattleMgr.Instance.mainPlayer;
+        if (!AI.IsPlayerAlive(player))
+        {
+            return false;
+        }
+
         Vector3 dir = player.Position - m_Actor.Position;
         Quaternion targetLook = Quaternion.LookRotation(dir);
         Quaternion qua = Quaternion.RotateTowards(m_Actor.Rotation, targetLook, m_RotateSpeed * Time.deltaTime);
@@ -74,6 +79,10 @@ public class AIForPlayer : IAI
     public bool AttackPlayer(float deltaTime)
     {
         PlayerActor player = BattleMgr.Instance.mainPlayer;
+        if (!AI.IsPlayerAlive(player))
+        {
+            return false;
+        }
 
         // 判断是否在指定距离内
         float distance = Vector3.Distance(player.Position, m_Actor.Position);

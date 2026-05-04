@@ -26,6 +26,12 @@ public class AI : IAI
         get { return m_CurrentBehaviorType; }
     }
 
+    /// <summary>玩家是否存在且尚未死亡（可作追击/攻击目标）。</summary>
+    public static bool IsPlayerAlive(PlayerActor player)
+    {
+        return player != null && !player.m_IsDead && player.actorAnimState != ActorAnimState.Dead;
+    }
+
     public void Init(ActorBase actor)
     {
         if (actor is PlayerActor)
@@ -103,7 +109,7 @@ public class AI : IAI
         }
 
         PlayerActor player = battle.mainPlayer;
-        if (player != null && player.actorAnimState != ActorAnimState.Dead)
+        if (IsPlayerAlive(player))
         {
             AccumulateRadialSeparation(ref separation, self, player.Position, MinSeparationFromAttackTarget);
         }
@@ -139,7 +145,7 @@ public class AI : IAI
     public void FacePlayer(float deltaTime)
     {
         PlayerActor player = BattleMgr.Instance.mainPlayer;
-        if (player == null || player.actorAnimState == ActorAnimState.Dead)
+        if (!IsPlayerAlive(player))
         {
             return;
         }
@@ -161,6 +167,11 @@ public class AI : IAI
     public bool MoveToPlayer(float deltaTime)
     {
         PlayerActor player = BattleMgr.Instance.mainPlayer;
+        if (!IsPlayerAlive(player))
+        {
+            return false;
+        }
+
         // 移动
         float distance = Vector3.Distance(player.Position, m_Actor.Position);
 
@@ -192,6 +203,10 @@ public class AI : IAI
     public bool AttackPlayer(float deltaTime)
     {
         PlayerActor player = BattleMgr.Instance.mainPlayer;
+        if (!IsPlayerAlive(player))
+        {
+            return false;
+        }
 
         // 判断是否在指定距离内
         float distance = Vector3.Distance(player.Position, m_Actor.Position);
