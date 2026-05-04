@@ -49,7 +49,7 @@ public class BattleMgr : GameLogicMgr<BattleMgr>
 
     void CreateEnemy()
     {
-        for (int i = 0; i < 8; ++i)
+        for (int i = 0; i < 10; ++i)
         {
             // 让怪物出生在半径为10米的圆周上，分布尽可能均匀
             float radius = 10f;
@@ -95,7 +95,7 @@ public class BattleMgr : GameLogicMgr<BattleMgr>
             CreateMainPlayer(m_PlayerRelivePos);
         }
 
-        // 检查怪物数量是否少于4只，如果是，就调用CreateEnemy
+        // 检查怪物数量是否少于6只，如果是，就调用CreateEnemy
         int monsterCount = 0;
         foreach (var actor in m_ActorList)
         {
@@ -104,7 +104,7 @@ public class BattleMgr : GameLogicMgr<BattleMgr>
                 monsterCount++;
             }
         }
-        if (monsterCount < 4)
+        if (monsterCount < 6)
         {
             CreateEnemy();
         }

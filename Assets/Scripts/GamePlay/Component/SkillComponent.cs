@@ -2,13 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// ???¨¹????????????????????????????¦Ç?¦¶???????
-/// </summary>
 public class SkillComponent
 {
     ActorBase m_Actor;
     List<ActorBase> m_EnemyList = new List<ActorBase>();
+    int ATTACK_ANGLE = 120;
 
     public void Init(ActorBase actor)
     {
@@ -30,11 +28,7 @@ public class SkillComponent
         }
     }
 
-    /// <summary>
-    /// </summary>
-    /// <param name="angle"></param>
-    /// <returns></returns>
-    public void GetEnemyListInSector(float angle = 30)
+    public void GetEnemyListInSector()
     {
         m_EnemyList.Clear();
         for (int i = 0; i < BattleMgr.Instance.actorList.Count; ++i)
@@ -50,7 +44,7 @@ public class SkillComponent
                 continue;
             }
             float dirAngle = Mathf.Abs(Vector3.Angle(m_Actor.Forward, actor.Position - m_Actor.Position));
-            if (dirAngle < angle)
+            if (dirAngle < ATTACK_ANGLE)
             {
                 m_EnemyList.Add(actor);
             }
@@ -60,7 +54,7 @@ public class SkillComponent
     public void Update()
     {
         int radius = 3;
-        int angle = 60;
+        int angle = ATTACK_ANGLE;
 
         Vector3 forward = m_Actor.Forward;
         Vector3 leftDir = Quaternion.Euler(0, -angle / 2, 0) * forward;

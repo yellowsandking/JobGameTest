@@ -186,8 +186,9 @@ public class HPBarMgr : MonoBehaviour
             }
 
             ActorBase actor = actors[i];
-            if (actor == null)
+            if (actor == null || actor.m_PropSet[PropType.HP_CUR] == 0)
             {
+                barRt.gameObject.SetActive(false);
                 continue;
             }
 

@@ -102,6 +102,11 @@ public abstract class ActorBaseView : MonoBehaviour, IActorView
 
     void PlayAnimation(ActorAnimState state)
     {
+        //if (this is PlayerView)
+        //{
+        //    Debug.Log($"Play animation {state} for {name}");
+        //}
+
         switch (state)
         {
             case ActorAnimState.Idle:
@@ -153,6 +158,6 @@ public abstract class ActorBaseView : MonoBehaviour, IActorView
 
     public async UniTask WaitForDeadAnim()
     {
-        await UniTask.Delay(4000);
+        await UniTask.Delay(2500);
     }
 }
