@@ -13,6 +13,7 @@ public class BattleMgr : GameLogicMgr<BattleMgr>
     PlayerActor m_PlayerActor = null;
     public bool m_IsInit = false;
     Vector3 m_PlayerRelivePos = Vector3.zero;
+    int m_MonsterNumber = 15;
 
     public List<ActorBase> actorList
     {
@@ -33,7 +34,7 @@ public class BattleMgr : GameLogicMgr<BattleMgr>
     {
         //Debug.Log("BattleMgr init");
         CreateMainPlayer(Vector3.zero);
-        CreateEnemy();
+        CreateEnemy(m_MonsterNumber);
         m_IsInit = true;
         return UniTask.CompletedTask;
     }
@@ -45,9 +46,9 @@ public class BattleMgr : GameLogicMgr<BattleMgr>
         NotifyActorListChanged();
     }
 
-    void CreateEnemy()
+    void CreateEnemy(int count)
     {
-        for (int i = 0; i < 10; ++i)
+        for (int i = 0; i < count; ++i)
         {
             // 让怪物出生在半径为10米的圆周上，分布尽可能均匀
             float radius = 10f;
@@ -102,9 +103,9 @@ public class BattleMgr : GameLogicMgr<BattleMgr>
                 monsterCount++;
             }
         }
-        if (monsterCount < 6)
+        if (monsterCount < m_MonsterNumber)
         {
-            CreateEnemy();
+            CreateEnemy(m_MonsterNumber - monsterCount);
         }
     }
 
