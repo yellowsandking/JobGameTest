@@ -16,6 +16,7 @@ public class ResourceLoadMgr : GameLogicMgr<ResourceLoadMgr>
 
     // 需要加载的资源列表
     List<string> m_NeedLoadResourceList = new List<string>();
+    Dictionary<string, int> m_NeedLoadResourcePoolNumDic = new Dictionary<string, int>();
 
     Dictionary<string, AddressableObjectPool> m_GameAssetPoolDic = new Dictionary<string, AddressableObjectPool>();
     List<UniTask> m_UniTaskList = new List<UniTask>();
@@ -49,9 +50,11 @@ public class ResourceLoadMgr : GameLogicMgr<ResourceLoadMgr>
     async UniTask LoadGameResource()
     {
         m_NeedLoadResourceList.Clear();
-        m_NeedLoadResourceList.Add("Player");
-        m_NeedLoadResourceList.Add("Enemy");
-        m_NeedLoadResourceList.Add("Wing");
+        m_NeedLoadResourcePoolNumDic.Clear();
+        AddToNeedLoadResourceList("Player", 1);
+        AddToNeedLoadResourceList("Enemy", 20);
+        AddToNeedLoadResourceList("Wing", 2);
+
         for (int i = 0; i < m_NeedLoadResourceList.Count; ++i)
         {
             string resName = m_NeedLoadResourceList[i];
@@ -65,7 +68,12 @@ public class ResourceLoadMgr : GameLogicMgr<ResourceLoadMgr>
             }
 
             AddressableObjectPool addrPool = new AddressableObjectPool(resName, m_GameObjectPool, null, null);
-            m_UniTaskList.Add(addrPool.WarnUp(5));
+            int warmupCount = 1;
+            if (m_NeedLoadResourcePoolNumDic.ContainsKey(resName))
+            {
+                warmupCount = m_NeedLoadResourcePoolNumDic[resName];
+            }
+            m_UniTaskList.Add(addrPool.WarnUp(warmupCount));
             m_GameAssetPoolDic.Add(resName, addrPool);
             addrPool.PoolGameObject.transform.SetParent(m_GameObjectPool.transform);
             addrPool.PoolGameObject.transform.localPosition = Vector3.zero;
@@ -87,5 +95,23 @@ public class ResourceLoadMgr : GameLogicMgr<ResourceLoadMgr>
 
         Debug.LogError("Pool object is not enough, sourceKey: " + sourceKey);
         return null;
+    }
+
+    void AddToNeedLoadResourceList(string addrKey, int poolCount)
+    {
+        if (string.IsNullOrEmpty(addrKey) || addrKey == "0")
+        {
+            return;
+        }
+
+        if (m_NeedLoadResourceList.Contains(addrKey))
+        {
+            m_NeedLoadResourcePoolNumDic[addrKey] = poolCount;
+        }
+        else
+        {
+            m_NeedLoadResourceList.Add(addrKey);
+            m_NeedLoadResourcePoolNumDic[addrKey] = poolCount;
+        }
     }
 }
