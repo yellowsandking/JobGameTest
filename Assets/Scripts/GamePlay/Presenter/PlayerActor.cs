@@ -5,6 +5,13 @@ public class PlayerActor : ActorBase
 {
     IAI m_AI;
     int m_Run = 1;
+    int m_WingID = 1;
+
+    public int wingID
+    {
+        get => m_WingID;
+        set => m_WingID = value;
+    }
 
     protected override void ResetPresenterState()
     {
@@ -27,12 +34,26 @@ public class PlayerActor : ActorBase
         Model.PropSet[PropType.ROTATE_SPEED] = 500;
         Model.PropSet[PropType.ATT] = 50;
         Model.AnimState = ActorAnimState.Idle;
+        if (m_WingID > 0)
+        {
+            WingPresenter wingComponent = View.Has<WingPresenter>()
+                ? View.Get<WingPresenter>()
+                : new WingPresenter();
+
+            View.Add(wingComponent);
+            wingComponent.Init(this, m_WingID);
+        }
         SyncPresentation();
     }
 
     public override void Update()
     {
         SkillComponent.Update();
+        if (View != null && View.TryGet(out WingPresenter wingComponent))
+        {
+            wingComponent.Update();
+        }
+
         m_AI.LogicUpdate();
         Vector2 moveDir = InputMgr.Instance.moveDir;
         if (moveDir.sqrMagnitude <= 0)
@@ -66,4 +87,5 @@ public class PlayerActor : ActorBase
         }
         SyncPresentation();
     }
+
 }

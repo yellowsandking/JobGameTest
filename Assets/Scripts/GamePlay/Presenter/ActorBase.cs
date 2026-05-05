@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -123,6 +124,10 @@ public abstract class ActorBase
     {
     }
 
+    protected virtual void OnDispose()
+    {
+    }
+
     public void Dispose()
     {
         if (m_Disposed)
@@ -131,6 +136,7 @@ public abstract class ActorBase
         }
 
         m_Disposed = true;
+        OnDispose();
 
         m_View?.Dispose();
         m_View = null;
@@ -173,4 +179,5 @@ public abstract class ActorBase
         await View.WaitForDeadAnim();
         m_CanRecycle = true;
     }
+
 }

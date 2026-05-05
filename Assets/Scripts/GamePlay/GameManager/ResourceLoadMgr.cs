@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -51,6 +51,7 @@ public class ResourceLoadMgr : GameLogicMgr<ResourceLoadMgr>
         m_NeedLoadResourceList.Clear();
         m_NeedLoadResourceList.Add("Player");
         m_NeedLoadResourceList.Add("Enemy");
+        m_NeedLoadResourceList.Add("Wing");
         for (int i = 0; i < m_NeedLoadResourceList.Count; ++i)
         {
             string resName = m_NeedLoadResourceList[i];
