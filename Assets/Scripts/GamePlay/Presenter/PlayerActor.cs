@@ -1,4 +1,5 @@
 using NaughtyAttributes.Test;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 public class PlayerActor : ActorBase
@@ -36,11 +37,11 @@ public class PlayerActor : ActorBase
         Model.AnimState = ActorAnimState.Idle;
         if (m_WingID > 0)
         {
-            WingPresenter wingComponent = View.Has<WingPresenter>()
-                ? View.Get<WingPresenter>()
+            WingPresenter wingComponent = Has<WingPresenter>()
+                ? Get<WingPresenter>()
                 : new WingPresenter();
 
-            View.Add(wingComponent);
+            Add(wingComponent);
             wingComponent.Init(this, m_WingID);
         }
         SyncPresentation();
@@ -49,7 +50,7 @@ public class PlayerActor : ActorBase
     public override void Update()
     {
         SkillComponent.Update();
-        if (View != null && View.TryGet(out WingPresenter wingComponent))
+        if (TryGet(out WingPresenter wingComponent))
         {
             wingComponent.Update();
         }

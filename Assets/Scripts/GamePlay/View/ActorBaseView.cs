@@ -1,6 +1,5 @@
 using Cysharp.Threading.Tasks;
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -16,7 +15,6 @@ public abstract class ActorBaseView : MonoBehaviour, IActorView
 
     AddressablePoolObject m_PoolObject;
     Animator m_Animator;
-    readonly Dictionary<Type, object> _components = new Dictionary<Type, object>();
 
     /// <summary>绑定后的逻辑层 Presenter，运行期由 <see cref="ActorBase.Init"/> 赋值，供调试/编辑器查看。</summary>
     public ActorBase Presenter { get; private set; }
@@ -27,46 +25,6 @@ public abstract class ActorBaseView : MonoBehaviour, IActorView
     public Animator Animator => m_Animator;
 
     public GameObject VisualRoot => gameObject;
-
-    public void Add<T>(T comp)
-    {
-        _components[typeof(T)] = comp;
-    }
-
-    public T Get<T>()
-    {
-        return (T)_components[typeof(T)];
-    }
-
-    public bool TryGet<T>(out T comp)
-    {
-        if (_components.TryGetValue(typeof(T), out object value))
-        {
-            comp = (T)value;
-            return true;
-        }
-
-        comp = default;
-        return false;
-    }
-
-    public bool Has<T>()
-    {
-        return _components.ContainsKey(typeof(T));
-    }
-
-    void ClearComponents()
-    {
-        foreach (object comp in _components.Values)
-        {
-            if (comp is IDisposable disposable)
-            {
-                disposable.Dispose();
-            }
-        }
-
-        _components.Clear();
-    }
 
     /// <summary>
     /// 从对象池取出实例后由 <see cref="ActorSpawn"/> 调用：绑定池回收句柄，并重置动画同步缓存（防止复用时状态错乱）。
@@ -185,7 +143,6 @@ public abstract class ActorBaseView : MonoBehaviour, IActorView
     public void Dispose()
     {
         ClearPresenter();
-        ClearComponents();
         if (m_PoolObject != null)
         {
             m_PoolObject.Dispose();
@@ -196,7 +153,6 @@ public abstract class ActorBaseView : MonoBehaviour, IActorView
     protected virtual void OnDestroy()
     {
         ClearPresenter();
-        ClearComponents();
         m_PoolObject = null;
     }
 

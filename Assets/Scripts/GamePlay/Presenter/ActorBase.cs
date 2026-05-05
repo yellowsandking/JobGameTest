@@ -11,6 +11,7 @@ public abstract class ActorBase
     bool m_Disposed;
     ActorModel m_Model;
     ActorBaseView m_View;
+    readonly Dictionary<Type, object> _components = new Dictionary<Type, object>();
     public bool m_IsDead = false;
     public bool m_CanRecycle = false;
 
@@ -50,6 +51,51 @@ public abstract class ActorBase
     public Animator Animator => m_View?.Animator;
 
     public SkillComponent SkillComponent { get; private set; }
+
+    public void Add<T>(T comp)
+    {
+        _components[typeof(T)] = comp;
+    }
+
+    public T Get<T>()
+    {
+        return (T)_components[typeof(T)];
+    }
+
+    public bool TryGet<T>(out T comp)
+    {
+        if (_components.TryGetValue(typeof(T), out object value))
+        {
+            comp = (T)value;
+            return true;
+        }
+
+        comp = default;
+        return false;
+    }
+
+    public bool Has<T>()
+    {
+        return _components.ContainsKey(typeof(T));
+    }
+
+    public bool TryRemoveComponent<T>()
+    {
+        return _components.Remove(typeof(T));
+    }
+
+    void ClearComponents()
+    {
+        foreach (object comp in _components.Values)
+        {
+            if (comp is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+        }
+
+        _components.Clear();
+    }
 
     public void TriggerAttackPresentation()
     {
@@ -137,6 +183,7 @@ public abstract class ActorBase
 
         m_Disposed = true;
         OnDispose();
+        ClearComponents();
 
         m_View?.Dispose();
         m_View = null;
