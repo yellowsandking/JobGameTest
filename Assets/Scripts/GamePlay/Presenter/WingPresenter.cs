@@ -52,7 +52,7 @@ public class WingPresenter : IDisposable
         }
 
         GameObject wingObject = m_WingPoolObject.Object;
-        wingObject.transform.SetParent(parent, false);
+        wingObject.transform.SetParent(parent.Find("PlayerIdle/mixamorig:Hips"), false);
         m_View = s_ViewPool.Get();
         m_View.Bind(owner, m_Model, wingObject.transform);
     }
