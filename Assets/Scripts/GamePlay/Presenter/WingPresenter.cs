@@ -75,7 +75,6 @@ public class WingPresenter : IDisposable
             m_WingPoolObject.Dispose();
             m_WingPoolObject = null;
         }
-        m_Owner?.TryRemoveComponent<WingPresenter>();
         m_Owner = null;
     }
 }
